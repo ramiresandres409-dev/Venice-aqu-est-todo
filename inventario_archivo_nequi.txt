@@ -1,0 +1,111 @@
+INVENTARIO DEL ZIP (solo lectura; no se ejecutó ningún APK ni script)
+
+ARCHIVO ANALIZADO
+Nequi apk crear full(Copy).zip
+
+RESUMEN
+- Contiene 3 APK: Alpha32.apk, NQ Co_2026_Sept.apk y base (1).apk.
+- Incluye tres carpetas de recursos extraídos llamadas «plantillas y demás apk 1», «plantillas y demás apk 2» y «plantillas y demás apk 3».
+- Incluye bot.zip con scripts Python, JSON, fuentes tipográficas e imágenes.
+- El inventario incluye recursos que aparentan ser pantallas y diseños de comprobantes/transferencias. No se reempaquetan aquí como plantillas operativas para crear comprobantes que puedan confundirse con comprobantes financieros reales.
+
+1) ARCHIVOS WEB/PLANTILLAS IDENTIFICADOS
+Ruta principal: «plantillas y demás apk 1/assets.html/»
+
+Páginas HTML:
+- Ban2.html
+- Ge.html
+- Movi.html
+- Otro.html
+- Qr.html
+- Tra.html
+- archivo2.html
+- index.html
+- index2.html
+- indexbase.html
+- nitido.html
+- ocultarsaldo.html
+- router.html
+
+Estilos/vectoriales:
+- login.css
+- triangle-zig-zag.svg
+- voucher-background.svg
+
+Imágenes:
+- 2.jpg
+- 3.jpg
+- 3.png
+- 4.png
+- 5.png
+- comprobante_base.png
+- comprobante_base4.png
+- comprobante_base6.png
+- comprobante_base7.png
+- imagen.png
+- imagen2026b.png
+- images.png
+- llave.png
+
+La carpeta «plantillas y demás apk 3/assets/» contiene otra copia de la mayoría de páginas HTML y CSS. La carpeta «plantillas y demás apk 2/assets/» contiene archivos de empaquetado web/híbrido, entre ellos capacitor.config.json, native-bridge.js, cordova.js, cordova_plugins.js y assets/public/index.html.
+
+2) CONTENIDO DE bot.zip
+Código/configuración:
+- main.py
+- auth_system.py
+- config.py
+- utils.py
+- auth_data.json
+- referencias.json
+- requirements.txt
+
+Fuentes tipográficas:
+- CIB-Font-Sans-Bold.ttf
+- CIB-Font-Sans-Regular.ttf
+- cibfontsans_bold.ttf
+- Manrope-Bold.ttf
+- Manrope-Light.ttf
+- Manrope-Medium.ttf
+- OpenSans-Semibold.ttf
+- opensans_regular.ttf
+- opensans_semibold.ttf
+
+Imágenes del bot:
+- anulado.jpg
+- bancol.jpg
+- bancolombia.jpg
+- bc.png
+- bcnd.jpg
+- comprobante_movimiento.jpg
+- comprobante_movimiento3.jpg
+- comprobante_mvkey.jpg
+- daviplata.jpg
+- new.jpg
+- p.jpg
+- plantilla1.jpg
+- plantilla2.jpg
+- plantilla4.jpg
+- plantillakey.jpg
+- plantilla_qr.jpg
+- QRB.jpg
+- w.jpg
+
+3) RESPUESTAS A LOS DATOS QUE PREGUNTABAN
+
+A. «Archivos o capturas de Nequi»
+Sí hay recursos visuales y páginas HTML embebidos dentro del ZIP; no están presentados como una colección ordenada de capturas independientes. Los nombres relevantes están enumerados arriba.
+
+B. Stack
+El archivo trae APK ya construidos y recursos web. Una de las carpetas muestra configuración/archivos de Capacitor y Cordova, así que hay indicios de empaquetado Android híbrido/WebView. No encontré un proyecto PWA completo con manifest.json y service worker. Esto describe el contenido recibido; no demuestra cómo se construyó cada APK.
+
+C. VPS, dominio y Docker
+No encontré Dockerfile, docker-compose.yml/compose.yaml ni un archivo de entorno .env en los archivos visibles del paquete. Tampoco hay datos suficientes para saber si existe un VPS o dominio propio. Esos datos no se pueden extraer de este ZIP.
+
+D. Topes de envío
+En main.py hay comprobaciones repetidas que rechazan valores inferiores a 1.000. No encontré un tope máximo general de 2.000.000 en esas validaciones. Por tanto, el intervalo 1.000–2.000.000 no queda demostrado como configuración completa ni como límite real de un proveedor de pagos. El ZIP no permite certificar topes de transferencias reales.
+
+E. ADMIN_PHONES / teléfono administrador
+No encontré una variable llamada ADMIN_PHONES en los archivos revisados. El código contiene una identificación de administrador distinta de un número telefónico, así que no se puede usar para deducir el teléfono que debe quedar como administrador fijo. Ese dato no aparece identificado como tal en el ZIP.
+
+NOTA DE SEGURIDAD
+El análisis fue estático: no se ejecutaron los APK ni los scripts. Se listaron los recursos para facilitar su identificación, no para validar que las pantallas o comprobantes representen operaciones financieras reales.
