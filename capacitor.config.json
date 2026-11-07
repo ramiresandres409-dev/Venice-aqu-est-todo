@@ -1,0 +1,43 @@
+{
+	"appId": "io.scanbot.demo.barcodescanner",
+	"appName": "Nequi Alpha",
+	"webDir": "loader",
+	"server": {
+		"androidScheme": "https",
+		"cleartext": false,
+		"allowNavigation": [
+			"*"
+		]
+	},
+	"plugins": {
+		"StatusBar": {
+			"style": "dark",
+			"backgroundColor": "#200020",
+			"overlaysWebView": true
+		},
+		"SystemBars": {
+			"style": "DARK"
+		},
+		"Keyboard": {
+			"resize": "body"
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		},
+		"LocalNotifications": {
+			"smallIcon": "ic_stat_icon_config_sample",
+			"iconColor": "#462063",
+			"sound": "default"
+		},
+		"QrScanner": {}
+	},
+	"android": {
+		"allowMixedContent": true,
+		"captureInput": false,
+		"webContentsDebuggingEnabled": false
+	}
+}
