@@ -1,57 +1,45 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src * 'self'; script-src * 'self' 'unsafe-inline' 'unsafe-eval';">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <style>body{margin:0;background:#200020;width:100vw;height:100vh;}</style>
-</head>
-<body>
-    <script src="firebase-app-compat.js"></script>
-    <script src="firebase-remote-config-compat.js"></script>
-    <script>
-        function normalizeAppWebUrl(raw) {
-            if (!raw || typeof raw !== 'string') return '';
-            var u = raw.trim();
-            if (!u) return '';
-            /* Sin protocolo, el navegador lo interpreta como ruta bajo https://localhost/ → %C3%B1… en ñeky.com */
-            if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
-            return u;
-        }
-        function redirectWithCv(baseUrl, cacheVersion) {
-            var cv = cacheVersion || '1';
-            var finalUrl = baseUrl + (baseUrl.indexOf('?') !== -1 ? '&' : '?') + 'cv=' + encodeURIComponent(cv);
-            window.location.href = finalUrl;
-        }
-        (async () => {
-            try {
-                firebase.initializeApp({
-                    apiKey: "AIzaSyDBefDvlrg1n7haTuoiQqekKoV139BmK5c",
-                    authDomain: "nequi-comprobantes.firebaseapp.com",
-                    databaseURL: "https://nequi-comprobantes-default-rtdb.firebaseio.com",
-                    projectId: "nequi-comprobantes",
-                    storageBucket: "nequi-comprobantes.firebasestorage.app",
-                    messagingSenderId: "673658453367",
-                    appId: "1:673658453367:web:532a24614b00b09e2a7572",
-                    measurementId: "G-ZMNNF5BETX"
-                });
-                const rc = firebase.remoteConfig();
-                rc.settings = { minimumFetchIntervalMillis: 0, fetchTimeoutMillis: 10000 };
-                await rc.fetchAndActivate();
-                const raw = rc.getString('app_web_url');
-                const cacheVersion = rc.getString('app_cache_version') || '1';
-                const url = normalizeAppWebUrl(raw);
-                if (url) {
-                    localStorage.setItem('app_web_url', url);
-                    localStorage.setItem('app_cache_version', cacheVersion);
-                    redirectWithCv(url, cacheVersion);
-                }
-            } catch (e) {
-                const cachedUrl = normalizeAppWebUrl(localStorage.getItem('app_web_url') || '');
-                const cachedVersion = localStorage.getItem('app_cache_version') || '1';
-                if (cachedUrl) redirectWithCv(cachedUrl, cachedVersion);
-            }
-        })();
-    </script>
-</body>
+<!--
+         Licensed to the Apache Software Foundation (ASF) under one
+         or more contributor license agreements.  See the NOTICE file
+         distributed with this work for additional information
+         regarding copyright ownership.  The ASF licenses this file
+         to you under the Apache License, Version 2.0 (the
+         "License"); you may not use this file except in compliance
+         with the License.  You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+         Unless required by applicable law or agreed to in writing,
+         software distributed under the License is distributed on an
+         "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+         KIND, either express or implied.  See the License for the
+         specific language governing permissions and limitations
+         under the License.
+-->
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta name="viewport" content="width=320, user-scalable=no" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Cordova Tests</title>
+      <link rel="stylesheet" href="../master.css" type="text/css" media="screen" title="no title">
+      <script type="text/javascript" charset="utf-8" src="../cordova.js"></script>
+      <script type="text/javascript" charset="utf-8" src="../main.js"></script>
+  </head>
+  <body onload="init();" id="stage" class="theme">
+    <h1>Allow List Page 1</h1>
+    <div id="info">
+        <h4>Cordova: <span id="cordova"> &nbsp;</span></h4>
+        <h4>Deviceready: <span id="deviceready"> &nbsp;</span></h4>
+     </div>
+     <div id="info">
+     Loading Page 2 should be successful.<br>
+     Loading Page 3 should be in web browser.<br>
+     Loading Page 2 with target=_blank should be in web browser? <br>
+     (THIS DOESN'T HAPPEN.) https://issues.apache.org/jira/browse/CB-362 
+     </div>
+    <a href="index2.html" class="btn large">Page 2</a>
+    <a href="http://www.google.com" class="btn large">Page 3</a>
+    <a href="index2.html" class="btn large" target="_blank">Page 2 with target=_blank</a>
+  </body>
 </html>
