@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Opciones para enviar</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #f8f8f8; font-family: "Manrope", sans-serif; }
+.pantalla { width: 100vw; height: 100dvh; overflow: hidden; display: flex; align-items: stretch; justify-content: stretch; }
+.pantalla svg { width: 100%; height: 100%; display: block; preserveAspectRatio: none; }
+.opcion { cursor: pointer; touch-action: manipulation; }
+.opcion:active { opacity: 0.6; }
+svg text, svg path, svg rect, svg circle { user-select: none; -webkit-user-select: none; }
+.text { font-family: "Manrope", Arial, sans-serif; fill: #291529; }
+.subtext { font-family: "Manrope", Arial, sans-serif; fill: #626262; }
+</style>
+</head>
+
+<body>
+<div class="pantalla">
+<svg viewBox="0 0 720 1434" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+
+<rect x="0" y="0" width="720" height="1434" fill="#F8F8F8"/>
+
+<g class="opcion" onclick="volver()">
+    <rect x="25" y="12" width="85" height="65" fill="transparent"/>
+    <path d="M84 40H49" fill="none" stroke="#291529" stroke-width="5" stroke-linecap="round"/>
+    <path d="M66 22L48 40L66 58" fill="none" stroke="#291529" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+
+<text x="33" y="166" class="text" font-size="50" font-weight="700">Opciones para enviar</text>
+
+<g class="opcion" onclick="ir('nequi')">
+    <rect x="33" y="213" width="655" height="129" fill="#FFFFFF" stroke="#D5D5D5" stroke-width="1.5"/>
+    <circle cx="96" cy="273" r="6" fill="none" stroke="#291529" stroke-width="3"/>
+    <circle cx="112" cy="269" r="6" fill="none" stroke="#291529" stroke-width="3"/>
+    <path d="M86 291C87 283 92 279 98 279C104 279 109 283 110 291" fill="none" stroke="#291529" stroke-width="3"/>
+    <path d="M101 292H126C126 284 121 280 115 280" fill="none" stroke="#291529" stroke-width="3"/>
+    <text x="164" y="267" class="text" font-size="32" font-weight="500">Nequi</text>
+    <text x="164" y="308" class="subtext" font-size="27">A otro número de Nequi</text>
+    <path d="M616 262L629 276L616 292" fill="none" stroke="#291529" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+
+<g class="opcion" onclick="ir('bancolombia')">
+    <rect x="33" y="360" width="655" height="129" fill="#FFFFFF" stroke="#D5D5D5" stroke-width="1.5"/>
+    <path d="M84 418L127 401L111 442L103 424L84 418Z" fill="none" stroke="#291529" stroke-width="3" stroke-linejoin="round"/>
+    <text x="164" y="411" class="text" font-size="32" font-weight="500">Bancolombia</text>
+    <text x="164" y="454" class="subtext" font-size="27">Cuenta ahorro o corriente</text>
+    <path d="M616 408L629 422L616 438" fill="none" stroke="#291529" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+
+<g class="opcion" onclick="ir('breb')">
+    <rect x="33" y="507" width="655" height="126" fill="#FFFFFF" stroke="#D5D5D5" stroke-width="1.5"/>
+    <circle cx="115" cy="558" r="12" fill="none" stroke="#291529" stroke-width="3"/>
+    <circle cx="115" cy="558" r="3" fill="#291529"/>
+    <path d="M106 568L85 589L88 593L94 587L98 591L103 586L99 582L111 570" fill="none" stroke="#291529" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="164" y="557" class="text" font-size="31" font-weight="500">Enviar con llaves de Bre-B</text>
+    <text x="164" y="598" class="subtext" font-size="27">A otros bancos gratis y de una</text>
+    <path d="M616 554L629 568L616 584" fill="none" stroke="#291529" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+
+<g class="opcion" onclick="ir('otros')">
+    <rect x="33" y="651" width="655" height="126" fill="#FFFFFF" stroke="#D5D5D5" stroke-width="1.5"/>
+    <rect x="87" y="701" width="36" height="28" rx="4" fill="none" stroke="#291529" stroke-width="3"/>
+    <circle cx="115" cy="715" r="2" fill="#291529"/>
+    <text x="164" y="702" class="text" font-size="32" font-weight="500">Otros bancos</text>
+    <text x="164" y="744" class="subtext" font-size="27">Montos altos, puede tardar más</text>
+    <path d="M616 698L629 712L616 728" fill="none" stroke="#291529" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+
+<circle cx="61" cy="1184" r="5" fill="none" stroke="#291529" stroke-width="2.5"/>
+<circle cx="76" cy="1180" r="5" fill="none" stroke="#291529" stroke-width="2.5"/>
+<path d="M51 1200C52 1193 56 1189 61 1189C66 1189 70 1193 71 1200" fill="none" stroke="#291529" stroke-width="2.5"/>
+<path d="M66 1201H87C87 1195 83 1190 77 1190" fill="none" stroke="#291529" stroke-width="2.5"/>
+<text x="102" y="1198" class="text" font-size="28" font-weight="500">Contactos frecuentes de Nequi</text>
+<line x1="48" y1="1232" x2="672" y2="1232" stroke="#D6D6D6" stroke-width="1.5"/>
+
+<g class="opcion" onclick="contacto('YERSON')">
+    <rect x="60" y="1266" width="94" height="96" rx="20" fill="#FFFFFF" stroke="#291529" stroke-width="2.5"/>
+    <rect x="96" y="1292" width="21" height="42" rx="3" fill="none" stroke="#291529" stroke-width="2.5"/>
+    <text x="66" y="1387" class="text" font-size="18" font-weight="500">YERSON</text>
+</g>
+<g class="opcion" onclick="contacto('PATRICIA')">
+    <rect x="197" y="1266" width="94" height="96" rx="20" fill="#FFFFFF" stroke="#291529" stroke-width="2.5"/>
+    <rect x="233" y="1292" width="21" height="42" rx="3" fill="none" stroke="#291529" stroke-width="2.5"/>
+    <text x="201" y="1387" class="text" font-size="18" font-weight="500">PATRICIA</text>
+</g>
+<g class="opcion" onclick="contacto('EDGAR')">
+    <rect x="334" y="1266" width="94" height="96" rx="20" fill="#FFFFFF" stroke="#291529" stroke-width="2.5"/>
+    <rect x="370" y="1292" width="21" height="42" rx="3" fill="none" stroke="#291529" stroke-width="2.5"/>
+    <text x="344" y="1387" class="text" font-size="18" font-weight="500">EDGAR</text>
+</g>
+<g class="opcion" onclick="contacto('BAYRON')">
+    <rect x="470" y="1266" width="94" height="96" rx="20" fill="#FFFFFF" stroke="#291529" stroke-width="2.5"/>
+    <rect x="506" y="1292" width="21" height="42" rx="3" fill="none" stroke="#291529" stroke-width="2.5"/>
+    <text x="477" y="1387" class="text" font-size="18" font-weight="500">BAYRON</text>
+</g>
+<g class="opcion" onclick="contacto('ALESS')">
+    <rect x="607" y="1266" width="94" height="96" rx="20" fill="#FFFFFF" stroke="#291529" stroke-width="2.5"/>
+    <rect x="643" y="1292" width="21" height="42" rx="3" fill="none" stroke="#291529" stroke-width="2.5"/>
+    <text x="610" y="1387" class="text" font-size="18" font-weight="500">ALESS</text>
+</g>
+
+</svg>
+</div>
+
+<script>
+function ir(destino) {
+    const rutas = {
+        nequi: "Ge.html",
+        bancolombia: "Ban2.html",
+        breb: "archivo2.html",
+        otros: "Otro.html"
+    };
+    if (rutas[destino]) {
+        window.location.href = rutas[destino];
+    }
+}
+
+function contacto(nombre) {
+    alert("Seleccionaste a " + nombre);
+}
+
+function volver() {
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        window.location.href = "index.html";
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>NequiBotGV - Generador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --ink:#18001f; --ink-2:#3a1a47; --muted:#8a6b94;
+      --pink-1:#fdf1fb; --pink-2:#f4d9ec; --tile:#ffffff;
+      --brand:#da0081; --btn:#f39ac3; --cyan-0:#e9fbff; --cyan:#19a6c2;
+      --radius:16px; --ring:0 0 0 3px rgba(218,0,129,.18);
+    }
+    *{box-sizing:border-box}
+    html,body{ margin:0;height:100%;width:100%; background:#fff;color:var(--ink);
+      font-family:'Manrope',system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
+    img{display:block;max-width:100%}
+    button{font-family:inherit}
+
+    .app{ min-height:100dvh;width:100%;display:flex;flex-direction:column;
+      padding-left:calc(env(safe-area-inset-left,0px));
+      padding-right:calc(env(safe-area-inset-right,0px)); background:#fff; }
+
+    .topbar{ height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px 0 10px }
+    .topbtn{ width:34px;height:34px;border-radius:999px;display:grid;place-items:center;color:#1f0b2a;font-weight:800 }
+    .topgroup{display:flex;align-items:center;gap:8px}
+
+    .content{ flex:1;display:flex;flex-direction:column;padding:0 16px 16px; gap:10px; overflow:hidden; }
+    .titulo{ font-weight:800;font-size:28px;line-height:1.05;letter-spacing:-.3px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+
+    .info{ display:flex;gap:10px;align-items:flex-start;background:var(--cyan-0);
+      border-radius:14px;padding:10px 12px;margin-bottom:6px;font-size:15px }
+    .info .i{ flex:0 0 22px;height:22px;border:2px solid var(--cyan);border-radius:999px;color:var(--cyan);
+      display:grid;place-items:center;font-weight:800;font-size:12px;line-height:1 }
+    .info b{font-weight:800}
+
+    .stack{display:grid;gap:10px}
+    .field{ position:relative;background:var(--pink-1);border:1px solid var(--pink-2);border-radius:var(--radius);
+      padding:0 42px 0 14px;height:54px;display:flex;align-items:center }
+    .field input{ width:100%;height:100%;border:none;background:transparent;outline:none;font-size:16px;color:var(--ink-2) }
+    .field input::placeholder{color:var(--muted)}
+    .field:has(input:focus){box-shadow:var(--ring)}
+    .chev{ position:absolute;right:10px;top:0;bottom:0;margin:auto;display:grid;place-items:center;width:24px;height:24px;color:#6e5c7b;pointer-events:none }
+    .select{cursor:pointer;user-select:none}
+    .select .label{font-size:16px;color:#2d0a3b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .favorito{ background:var(--tile);border:1px solid #eee;border-radius:14px;padding:10px 12px;margin:2px 0 6px;
+      display:flex;align-items:center;gap:10px }
+    .fav-star{font-size:22px;color:#b10b86}
+    .switch{margin-left:auto;position:relative;width:48px;height:28px}
+    .switch input{appearance:none;-webkit-appearance:none;width:48px;height:28px;border-radius:999px;background:#ece7ef;outline:none;cursor:pointer;transition:.2s}
+    .switch input:checked{background:#3b3740}
+    .knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;pointer-events:none}
+    .switch input:checked + .knob{transform:translateX(20px)}
+
+    .fuente{font-weight:800;color:#c600a1;font-size:18px;margin:4px 0 4px}
+    .fuente-tile{ position:relative;background:var(--tile);border:1px solid #f0f0f0;border-radius:14px;padding:12px 42px 12px 12px;
+      display:flex;align-items:center;gap:12px;box-shadow:0 8px 22px rgba(17,0,28,.06) }
+    .fuente-icon{width:28px;height:28px;border-radius:10px;background:var(--brand);display:grid;place-items:center;color:#fff;font-weight:900;font-size:14px}
+    .fuente-tile .label{font-size:16px;color:#2d0a3b}
+    .fuente-tile .chev{right:12px}
+
+    .footer{ padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 10px);
+      background:linear-gradient(180deg,rgba(255,255,255,0) 0%, #fff 30%); }
+    .boton{ width:100%;height:56px;background:var(--btn);border:none;border-radius:18px;color:#fff;font-weight:800;font-size:18px;cursor:pointer;
+      box-shadow:0 12px 26px rgba(218,0,129,.18) }
+
+    /* Animación diamantes */
+    .finish-overlay{position:fixed;inset:0;background:#fff;display:none;align-items:center;justify-content:center;flex-direction:column;gap:24px;z-index:1200}
+    .diamantes{position:relative;width:160px;height:120px}
+    .diamond{position:absolute;width:70px;height:70px;background:var(--brand);border-radius:12px;transform:rotate(45deg) scale(0);animation:pop .8s ease forwards;box-shadow:0 8px 28px rgba(218,0,129,.35)}
+    .diamond.left{left:12px;top:25px}
+    .diamond.right{left:78px;top:25px;animation-delay:.15s}
+    .spark{position:absolute;width:10px;height:10px;background:#ffb9e1;border-radius:2px;transform:rotate(45deg) scale(0);animation:spark .9s ease forwards .3s}
+    .spark.s1{left:4px;top:-6px}.spark.s2{right:-8px;top:0}.spark.s3{left:40px;bottom:-10px}
+    @keyframes pop{0%{transform:rotate(45deg) scale(0)}55%{transform:rotate(45deg) scale(1.08)}100%{transform:rotate(45deg) scale(1)}}
+    @keyframes spark{0%{transform:rotate(45deg) scale(0);opacity:0}60%{transform:rotate(45deg) scale(1.4);opacity:1}100%{transform:rotate(45deg) scale(.9);opacity:0}}
+
+    /* Visor comprobante */
+    #captura.viewer{display:none;position:fixed;inset:0;background:#000;z-index:1100;overflow:hidden;touch-action:none}
+    .stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);transform-origin:center;width:390px}
+    .bg{display:block;width:390px;height:auto;user-select:none;-webkit-user-drag:none;pointer-events:none}
+    .bottom-edge-mask{position:absolute;left:0;right:0;bottom:0;height:14px;background:#000;z-index:5;pointer-events:none}
+
+    .input-overlay{
+      position:absolute;background:transparent;border:none;font-size:15.5px;color:#3C114B;font-weight:500;text-align:left;
+      font-family:'Manrope',sans-serif;pointer-events:none;line-height:1.4
+    }
+    #nombre{top:415px;left:39px;width:280px;white-space:normal;word-break:break-word;overflow:visible}
+    #valor{top:467px;left:37px;width:280px}
+    /* >>> FECHA: una sola línea, sin saltos, ancho ilimitado <<< */
+    #fecha{top:510px;left:40px;white-space:nowrap;width:max-content}
+    #nequi{top:607px;left:37px;width:280px}
+    #referencia{top:653px;left:37px;width:280px}
+    #bancolombia{top:557px;left:40px;width:280px}
+    #disponible{top:702px;left:40px;width:280px}
+
+    #verPantallaCompleta{display:none}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="topbtn" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="topgroup">
+        <div class="topbtn" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 17l5 3-1.5-5.5L20 10l-5.7-.5L12 4 9.7 9.5 4 10l4.5 4-1.5 6z" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+        </div>
+        <div class="topbtn" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20 6l-11 11-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="content" id="pantalla">
+      <div class="titulo">Envía a Bancolombia</div>
+
+      <div class="info">
+        <div class="i">i</div>
+        <div>¡Los envíos a Bancolombia <b>no tienen costo y llegan de una</b>!</div>
+      </div>
+
+      <div class="stack">
+        <label class="field" for="input-nombre">
+          <input type="text" id="input-nombre" placeholder="Nombre completo (2 nombres y 2 apellidos)" />
+        </label>
+
+        <div id="input-tipo" class="field select" role="button" aria-label="Tipo de cuenta">
+          <div class="label">Tipo de cuenta</div>
+          <div class="chev" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <label class="field" for="input-nequi">
+          <input type="tel" inputmode="numeric" id="input-nequi" placeholder="Número de cuenta" maxlength="20" />
+          <div class="chev" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </label>
+
+        <label class="field" for="input-valor">
+          <input type="tel" inputmode="numeric" id="input-valor" placeholder="¿Cuánto? (ej: 2.000.000,00)" />
+        </label>
+      </div>
+
+      <div class="favorito">
+        <div class="fav-star">☆</div>
+        <span>Recordar en favoritos</span>
+        <label class="switch">
+          <input type="checkbox" />
+          <span class="knob"></span>
+        </label>
+      </div>
+
+      <div class="fuente">Escoge de donde saldrá la plata</div>
+      <div class="fuente-tile">
+        <div class="fuente-icon">▦</div>
+        <div class="label">Disponible</div>
+        <div class="chev" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button id="generar" class="boton">Continuar</button>
+    </div>
+  </div>
+
+  <!-- Animación -->
+  <div id="anim" class="finish-overlay" aria-hidden="true">
+    <div class="diamantes" aria-hidden="true">
+      <div class="diamond left"></div>
+      <div class="diamond right"></div>
+      <div class="spark s1"></div>
+      <div class="spark s2"></div>
+      <div class="spark s3"></div>
+    </div>
+  </div>
+
+  <!-- Visor del comprobante (solo UI local, no guarda nombre) -->
+  <div id="captura" class="viewer" aria-hidden="true">
+    <div class="stage" id="stage">
+      <img class="bg" id="imagen-fondo" src="comprobante_base4.png" alt="Fondo" />
+      <div id="nombre" class="input-overlay"></div>
+      <input type="text" id="valor" class="input-overlay" readonly />
+      <div id="fecha" class="input-overlay"></div>
+      <input type="text" id="nequi" class="input-overlay" readonly />
+      <input type="text" id="referencia" class="input-overlay" readonly />
+      <div id="bancolombia" class="input-overlay">Bancolombia</div>
+      <div id="disponible" class="input-overlay">Disponible</div>
+      <div class="bottom-edge-mask"></div>
+    </div>
+  </div>
+
+  <button id="verPantallaCompleta">Ver en Pantalla Completa</button>
+
+  <!-- ===== Lógica UI (sin guardar nombre) ===== -->
+  <script>
+    /* ===== Selector tipo de cuenta ===== */
+    document.getElementById('input-tipo').addEventListener('click', () => {
+      const opciones = ['Ahorros', 'Corriente'];
+      const el = document.getElementById('input-tipo').querySelector('.label');
+      const actual = el.textContent.trim();
+      const next = opciones.includes(actual) ? opciones[(opciones.indexOf(actual)+1)%opciones.length] : opciones[0];
+      el.textContent = next;
+    });
+
+    /* ===== Refs ===== */
+    const anim     = document.getElementById('anim');
+    const captura  = document.getElementById('captura');
+    const stage    = document.getElementById('stage');
+    const imgBase  = document.getElementById('imagen-fondo');
+
+    const inNombre = document.getElementById('input-nombre');
+    const inNequi  = document.getElementById('input-nequi');
+    const inValor  = document.getElementById('input-valor');
+
+    const BASE_W = 390; let BASE_H = null; let inFS = false;
+
+    function setBaseHeight(){
+      if(imgBase.naturalWidth && imgBase.naturalHeight){
+        BASE_H = BASE_W * (imgBase.naturalHeight / imgBase.naturalWidth);
+      }
+    }
+    if (imgBase.complete) setBaseHeight();
+    imgBase.addEventListener('load', setBaseHeight);
+
+    /* ===== Helpers dinero (BigInt) ===== */
+    function toPrettyFromBigCents(bigCents){
+      bigCents = bigCents < 0n ? 0n : bigCents;
+      const s = bigCents.toString().padStart(3,'0');
+      const ent = s.slice(0,-2);
+      const dec = s.slice(-2);
+      const entGrouped = ent.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+      return `${entGrouped},${dec}`;
+    }
+    function parsePrettyToBigCents(pretty){
+      const digits = (String(pretty||'').match(/\d/g)||[]).join('');
+      if (!digits) return 0n;
+      const s = digits.padStart(3,'0');
+      const ent = s.slice(0,-2), dec = s.slice(-2);
+      return BigInt(ent + dec);
+    }
+
+    /* ===== Máscara de moneda en tiempo real (estilo Nequi) ===== */
+    (function setupMoneyMask(){
+      const el = inValor;
+
+      function formatFromDigits(digits){
+        const d = (digits || '').replace(/\D/g,'');
+        const s = d.padStart(3,'0'); // al menos 3 para tener 0,00
+        const ent = s.slice(0,-2).replace(/^0+(?=\d)/,''); // quitar ceros a la izquierda
+        const dec = s.slice(-2);
+        const entShown = ent.length ? ent : '0';
+        const entGrouped = entShown.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        return `${entGrouped},${dec}`;
+      }
+
+      function digitsBeforeCaret(value, caret){
+        let n=0;
+        for(let i=0;i<Math.min(caret, value.length);i++){
+          if (/\d/.test(value[i])) n++;
+        }
+        return n;
+      }
+      function caretFromDigits(value, digitIndex){
+        if (digitIndex <= 0) return 0;
+        let n=0;
+        for(let i=0;i<value.length;i++){
+          if (/\d/.test(value[i])) n++;
+          if (n>=digitIndex) return i+1;
+        }
+        return value.length;
+      }
+
+      function reformat(keepDigitsPos=true){
+        const oldVal = el.value;
+        const oldPos = el.selectionStart||0;
+        const oldDigitPos = digitsBeforeCaret(oldVal, oldPos);
+
+        const onlyDigits = (oldVal.match(/\d/g)||[]).join('');
+        const newVal = formatFromDigits(onlyDigits);
+        el.value = newVal;
+
+        if (keepDigitsPos){
+          const newCaret = caretFromDigits(newVal, oldDigitPos);
+          el.setSelectionRange(newCaret, newCaret);
+        }
+      }
+
+      el.addEventListener('input', reformat);
+      el.addEventListener('blur', ()=> reformat(false));
+
+      // Si viene vacío, muestra 0,00
+      el.addEventListener('focus', ()=>{
+        if (!el.value.trim()) el.value = '0,00';
+        // colocar cursor antes del último dígito si el usuario empieza a escribir
+        setTimeout(()=>{ el.setSelectionRange(el.value.length-3, el.value.length-3); }, 0);
+      });
+    })();
+
+    /* ===== Fullscreen & escala ===== */
+    async function enterFS(el){
+      const req=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;
+      if(req){ try{ await req.call(el); }catch{} }
+    }
+    async function exitFS(){ if(document.fullscreenElement){ try{ await document.exitFullscreen(); }catch{} } }
+    function scaleToFullscreen(){
+      const vw=window.innerWidth, vh=window.innerHeight;
+      const hBase = BASE_H || BASE_W*2;
+      const s=Math.min(vw/BASE_W, vh/hBase);
+      stage.style.transform=`translate(-50%,-50%) scale(${s})`;
+    }
+    function scaleToNormal(){ stage.style.transform='translate(-50%,-50%) scale(1)'; }
+
+    document.addEventListener('fullscreenchange', ()=>{
+      inFS = !!document.fullscreenElement;
+      if(inFS){ scaleToFullscreen(); }
+      else{ if(captura.style.display==='block') irAlFormulario(); }
+    });
+    window.addEventListener('resize', ()=>{ if(inFS) scaleToFullscreen(); });
+    window.addEventListener('orientationchange', ()=>{ if(inFS) setTimeout(scaleToFullscreen,50); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ exitFS(); } });
+
+    /* ===== Flujo principal ===== */
+    document.getElementById('generar').addEventListener('click', async ()=>{
+      const nombreV = (inNombre.value || '').trim();
+      const nequiV  = (inNequi.value  || '').trim();
+      const valorRaw = (inValor.value  || '').trim();
+
+      if(!nombreV || !nequiV || !valorRaw){ alert("Todos los campos son obligatorios."); return; }
+
+      const montoBig = parsePrettyToBigCents(valorRaw);
+      if(montoBig <= 0n){ alert("El valor debe ser un número válido."); return; }
+      const len=nequiV.replace(/\D/g,'').length;
+      if(len<10 || len>20){ alert("El número debe tener entre 10 y 20 dígitos."); return; }
+
+      // Pintar comprobante (solo UI local; NO se guarda nombre en DB)
+      document.getElementById('nombre').textContent = nombreV;
+      document.getElementById('valor').value        = `$ ${toPrettyFromBigCents(montoBig)}`;
+      document.getElementById('nequi').value        = nequiV;
+      document.getElementById('referencia').value   = 'M' + Math.floor(1e7 + Math.random()*9e7);
+
+      // Generar fecha en una sola línea (ilimitado)
+      generarFecha(getTZFromURL('America/Bogota'));
+
+      // Descuento en overlay (solo saldo)
+      if (window.descontarOverlay) {
+        try{
+          const ok = await window.descontarOverlay(montoBig);
+          if (!ok) console.warn('Transacción no aplicada (UID faltante o sin saldo).');
+        }catch(e){ console.error('Error al descontar:', e); }
+      }
+
+      // Animación + visor
+      try{ history.pushState({screen:'comprobante'},''); }catch{}
+      anim.style.display='flex'; anim.setAttribute('aria-hidden','false');
+      setTimeout(async ()=>{
+        anim.style.display='none'; anim.setAttribute('aria-hidden','true');
+        captura.style.display='block'; document.body.style.overflow='hidden';
+        await enterFS(captura); if(!document.fullscreenElement){ inFS = true; scaleToFullscreen(); }
+      }, 900);
+    });
+
+    window.addEventListener('popstate', ()=>{ volverAlFormulario(); });
+    async function volverAlFormulario(){ await exitFS(); if(!document.fullscreenElement){ irAlFormulario(); } }
+    function irAlFormulario(){
+      captura.style.display='none'; document.body.style.overflow='hidden';
+      inFS=false; scaleToNormal(); try{ history.replaceState({screen:'form'},''); }catch{}
+    }
+    try{ history.replaceState({screen:'form'},''); }catch{}
+  </script>
+
+  <!-- ===== Firebase v10: solo DESCUENTO en ui/overlay/{UID} ===== -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHb3MkiF8XDjweNYBazE08sETyF-Yuy0s",
+      authDomain: "base-de-datos-clientes-ea806.firebaseapp.com",
+      databaseURL: "https://base-de-datos-clientes-ea806-default-rtdb.firebaseio.com",
+      projectId: "base-de-datos-clientes-ea806",
+      storageBucket: "base-de-datos-clientes-ea806.firebasestorage.app",
+      messagingSenderId: "711168578601",
+      appId: "1:711168578601:web:2f4784c0382f63376ff838",
+      measurementId: "G-BX5D7X4DCM"
+    };
+
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // UID compartido con el Visor
+    function getOrCreateOverlayUID(){
+      const params = new URLSearchParams(location.search);
+      const urlUID = params.get('uid');
+      if (urlUID){ try{ localStorage.setItem('overlayUID', urlUID); }catch(_){} return urlUID; }
+      try{
+        const saved = localStorage.getItem('overlayUID');
+        if (saved) return saved;
+      }catch(_){}
+      const gen = 'user_' + Math.random().toString(36).slice(2,11);
+      try{ localStorage.setItem('overlayUID', gen); }catch(_){}
+      return gen;
+    }
+    const OVERLAY_UID = getOrCreateOverlayUID();
+    const overlayRef  = ref(db, `ui/overlay/${OVERLAY_UID}`);
+    const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER);
+
+    // Helpers locales
+    function prettyToBigCentsLocal(pretty){
+      const digits = (String(pretty||'').match(/\d/g)||[]).join('').padStart(3,'0');
+      return BigInt(digits.slice(0,-2) + digits.slice(-2));
+    }
+    function bigCentsToPrettyLocal(big){
+      big = big < 0n ? 0n : big;
+      const s = big.toString().padStart(3,'0');
+      const ent = s.slice(0,-2), dec = s.slice(-2);
+      return ent.replace(/\B(?=(\d{3})+(?!\d))/g,'.') + ',' + dec;
+    }
+
+    // Solo descuento (no guarda nombre ni otros datos del usuario)
+    window.descontarOverlay = async function(montoBig){
+      if (typeof montoBig !== 'bigint') montoBig = BigInt(montoBig||0);
+      if (montoBig <= 0n) return false;
+
+      const tx = await runTransaction(overlayRef, (cur)=>{
+        const d = cur || {};
+        // saldo actual
+        let current = 0n;
+        if (Number.isFinite(d.cents)) current = BigInt(d.cents);
+        else if (d.montoRaw) current = prettyToBigCentsLocal(d.montoRaw);
+
+        let next = current - montoBig; if (next < 0n) next = 0n;
+
+        const payload = {
+          ...d,
+          montoRaw: bigCentsToPrettyLocal(next),
+          updatedAt: Date.now()
+        };
+        payload.cents = (next <= MAX_SAFE) ? Number(next) : null;
+        // NO se escribe ningún nombre ni dato personal aquí
+        return payload;
+      }, { applyLocally:false }).catch(e=>{ console.error('runTransaction error', e); return null; });
+
+      return !!(tx && tx.committed);
+    };
+
+    console.log('[Generador] listo. Overlay UID:', OVERLAY_UID);
+  </script>
+
+  <!-- === Fecha y zona horaria (versión única) === -->
+  <script>
+    // Obtener TZ opcional de ?tz=America/Bogota
+    function getTZFromURL(defaultTZ='America/Bogota'){
+      const tz = new URLSearchParams(location.search).get('tz');
+      return tz || defaultTZ;
+    }
+
+    // Genera una fecha estilo "05 de septiembre de 2025 a las 3:07 p. m."
+    function generarFecha(timeZone = 'America/Bogota'){
+      const f = new Date();
+      const fmt = new Intl.DateTimeFormat('es-CO', {
+        timeZone,
+        year: 'numeric',
+        month: 'long',
+        day: '2-digit',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+      const parts = Object.fromEntries(fmt.formatToParts(f).map(p => [p.type, p.value]));
+
+      let ampm = (parts.dayPeriod || '').replace(/\s+/g,' ').toLowerCase();
+      if(!ampm){
+        const hourNum = Number(parts.hour || 0);
+        ampm = hourNum >= 12 ? 'p. m.' : 'a. m.';
+      }
+
+      const dia  = (parts.day||'').padStart(2,'0');
+      const mes  = (parts.month||'').toLowerCase();
+      const anio = parts.year || '';
+      const hora = parts.hour || '';
+      const min  = (parts.minute||'').padStart(2,'0');
+
+      document.getElementById('fecha').textContent =
+        `${dia} de ${mes} de ${anio} a las ${hora}:${min} ${ampm}`;
+    }
+  </script>
+</body>
+</html>
+

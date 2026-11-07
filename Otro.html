@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Generador de Comprobantes Nequi</title>
+    <link rel="stylesheet" href="login.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>
+        .page-container { display: block !important; }
+        .control-panel {
+            position: fixed; top: 10px; right: 10px; background: #200020;
+            padding: 15px; border-radius: 12px; z-index: 1000; max-width: 320px;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .control-panel h3 { color: #E6007E; margin: 0 0 10px 0; font-size: 14px; }
+        .control-panel label { color: white; font-size: 11px; display: block; margin-top: 8px; }
+        .control-panel input, .control-panel select {
+            width: 100%; padding: 6px 8px; border: 1px solid #E6007E;
+            border-radius: 6px; background: #3a003a; color: white; font-size: 12px; margin-top: 3px;
+        }
+        .control-panel button {
+            width: 100%; padding: 10px; background: #E6007E; color: white;
+            border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 12px;
+        }
+        .control-panel button:hover { background: #ff1493; }
+        .toggle-panel {
+            position: fixed; top: 10px; right: 10px; background: #E6007E; color: white;
+            border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; z-index: 999; display: none;
+        }
+        .field-group { border-top: 1px solid #E6007E33; padding-top: 8px; margin-top: 8px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <button class="toggle-panel" id="toggleBtn" onclick="togglePanel()">⚙️</button>
+    
+    <div class="control-panel" id="controlPanel">
+        <h3>🎨 Generador de Comprobantes</h3>
+        <label>Tipo de Comprobante:</label>
+        <select id="tipoComprobante" onchange="cambiarTipo()">
+            <option value="nequi">Nequi a Nequi</option>
+            <option value="keybreb">Llave Bre-B</option>
+            <option value="qrbreb">QR Bre-B</option>
+            <option value="bancolombia">Bancolombia</option>
+            <option value="qrvouch">QR Vouch (Pago QR)</option>
+            <option value="incoming">Envío Recibido</option>
+        </select>
+        <div class="field-group">
+            <label>Destinatario/Origen:</label>
+            <input type="text" id="recipient" value="Juan Carlos Pérez">
+            <label>Monto:</label>
+            <input type="text" id="amount" value="150000">
+            <label>Fecha:</label>
+            <input type="text" id="fecha" value="">
+            <label>Referencia:</label>
+            <input type="text" id="refer" value="">
+        </div>
+        <div id="camposNequi" class="field-group">
+            <label>Número Nequi:</label>
+            <input type="text" id="numeronequi" value="3001234567">
+        </div>
+        <div id="camposBreb" class="field-group hidden">
+            <label>Llave:</label>
+            <input type="text" id="keyVoucher" value="3001234567">
+            <label>Banco Destino:</label>
+            <select id="banco">
+                <option value="Bancolombia">Bancolombia</option>
+                <option value="Davivienda">Davivienda</option>
+                <option value="BBVA">BBVA</option>
+                <option value="Banco de Bogotá">Banco de Bogotá</option>
+                <option value="Banco Popular">Banco Popular</option>
+            </select>
+            <label>Desde (teléfono):</label>
+            <input type="text" id="sender" value="300 123 4567">
+        </div>
+        <div id="camposBancolombia" class="field-group hidden">
+            <label>Banco:</label>
+            <input type="text" id="bancoBancolombia" value="Bancolombia">
+            <label>Número de Cuenta:</label>
+            <input type="text" id="accountNumber" value="1234567890">
+        </div>
+        <div class="field-group">
+            <label>Mensaje (opcional):</label>
+            <input type="text" id="mensaje" value="" placeholder="Ej: Pago arriendo">
+            <label>Origen del dinero:</label>
+            <input type="text" id="texto" value="Disponible en Nequi">
+        </div>
+        <button onclick="generarComprobante()">✨ Generar Comprobante</button>
+        <button onclick="togglePanel()" style="background: #666;">Ocultar Panel</button>
+    </div>
+
+    <div class="page-container" id="page-content">
+        <div class="receipt-container__zig-zag-up"></div>
+        <div class="receipt-container">
+            <div class="receipt-container__content-base">
+                <div class="receipt-content">
+                    <div class="receipt-content__header">
+                        <div class="receipt-content__header--image">
+                            <div class="detail-title">
+                                <img id="header-icon" class="detail-title__icon" width="24" height="24">
+                                <span class="detail-title__label" id="header-title">Envío realizado</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="receipt-content__body">
+                        <div class="receipt-content__body--title"></div>
+                        <div class="qr-container">
+                            <div class="check--container--qr__animation">
+                                <div class="qr__container">
+                                    <canvas id="qr-code" class="qr__img"></canvas>
+                                    <div class="qr__logo" id="qr-logo">
+                                        <img id="logo-nequi" width="41" height="42">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="qr-instruction">
+                            <img id="info-icon" class="qr-instruction__icon" width="18" height="18">
+                            <span class="qr-instruction__text" id="qr-instruction-text">¡Escanea este QR con Nequi para verificar tu envío al instante!</span>
+                        </div>
+                        <div class="labeled-value">
+                            <span class="labeled-value__label" id="recipient-label">Para</span>
+                            <span class="labeled-value__value" id="recipient-value">Juan Carlos Pérez</span>
+                        </div>
+                        <div id="qrbreb-section" style="display: none;">
+                            <div class="labeled-value">
+                                <span class="labeled-value__label">Llave</span>
+                                <span class="labeled-value__value" id="keyvoucher-value">-</span>
+                            </div>
+                            <div class="labeled-value">
+                                <span class="labeled-value__label">Banco destino</span>
+                                <span class="labeled-value__value" id="banco-value">-</span>
+                            </div>
+                        </div>
+                        <div class="labeled-value" id="amount-section">
+                            <span class="labeled-value__label">¿Cuánto?</span>
+                            <span class="labeled-value__value" id="amount-value">$ 150.000,00</span>
+                        </div>
+                        <div class="labeled-value" id="numeronequi-section">
+                            <span class="labeled-value__label">Número Nequi</span>
+                            <span class="labeled-value__value" id="numeronequi-value">300 123 4567</span>
+                        </div>
+                        <div class="labeled-value" id="fecha-section">
+                            <span class="labeled-value__label">Fecha</span>
+                            <span class="labeled-value__value" id="fecha-value">11 Dic 2024 10:30 a.m.</span>
+                        </div>
+                        <div id="bancolombia-section" style="display: none;">
+                            <div class="labeled-value">
+                                <span class="labeled-value__label">Banco</span>
+                                <span class="labeled-value__value" id="banco-bancolombia-value">-</span>
+                            </div>
+                            <div class="labeled-value">
+                                <span class="labeled-value__label">Número de cuenta</span>
+                                <span class="labeled-value__value" id="account-number-value">-</span>
+                            </div>
+                        </div>
+                        <div class="labeled-value">
+                            <span class="labeled-value__label">Referencia</span>
+                            <span class="labeled-value__value" id="refer-value">NQ847291</span>
+                        </div>
+                        <div id="sender-section" style="display: none;">
+                            <div class="labeled-value">
+                                <span class="labeled-value__label">¿Desde dónde se hizo el envío?</span>
+                                <span class="labeled-value__value" id="sender-value">-</span>
+                            </div>
+                        </div>
+                        <div class="labeled-value" id="texto-section">
+                            <span class="labeled-value__label">¿De dónde salió la plata?</span>
+                            <span class="labeled-value__value" id="texto-value">Disponible en Nequi</span>
+                        </div>
+                        <div id="conversation-section" style="display: none;">
+                            <div class="labeled-value">
+                                <span class="labeled-value__label">Conversación</span>
+                            </div>
+                            <div class="message-container" id="message-container">
+                                <span id="message-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-container">
+                        <button id="button-listo" class="button-listo">Listo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="receipt-container__zig-zag-down"></div>
+    </div>
+
+    <script>
+        // SVGs como Data URIs
+        const SVG = {
+            arrowUp: "data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8.25 11.6897L12 7.96875L15.75 11.6897' stroke='%23ff4961' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12 8.48572V16.0312' stroke='%23ff4961' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M21 12C21 7.03125 16.9688 3 12 3C7.03125 3 3 7.03125 3 12C3 16.9688 7.03125 21 12 21C16.9688 21 21 16.9688 21 12Z' stroke='%23ff4961' stroke-width='1.5' stroke-miterlimit='10'/%3E%3C/svg%3E",
+            checkMark: "data:image/svg+xml,%3Csvg width='26' height='26' viewBox='0 0 26 26' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20.159 3.2254H5.64464C4.30863 3.2254 3.22559 4.30845 3.22559 5.64446V20.1588C3.22559 21.4948 4.30863 22.5778 5.64464 22.5778H20.159C21.495 22.5778 22.578 21.4948 22.578 20.1588V5.64446C22.578 4.30845 21.495 3.2254 20.159 3.2254Z' fill='%2311DA7A'/%3E%3Cpath d='M17.7397 8.86986L10.9663 16.9334L8.06348 13.708' stroke='%23200020' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E",
+            incomingArrow: "data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8.25 11.6897L12 7.96875L15.75 11.6897' stroke='%232fdf75' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12 8.48572V16.0312' stroke='%232fdf75' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M21 12C21 7.03125 16.9688 3 12 3C7.03125 3 3 7.03125 3 12C3 16.9688 7.03125 21 12 21C16.9688 21 21 16.9688 21 12Z' stroke='%232fdf75' stroke-width='1.5' stroke-miterlimit='10'/%3E%3C/svg%3E",
+            logoNequi: "data:image/svg+xml,%3Csvg width='41' height='42' viewBox='0 0 41 42' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0.476562' y='0.678356' width='40.4441' height='41.2613' rx='20.2221' fill='white'/%3E%3Cpath d='M10.9721 10.2858H7.45807C7.05137 10.2858 6.72168 10.6221 6.72168 11.037V14.0817C6.72168 14.4966 7.05137 14.8329 7.45807 14.8329H10.9721C11.3788 14.8329 11.7085 14.4966 11.7085 14.0817V11.037C11.7085 10.6221 11.3788 10.2858 10.9721 10.2858Z' fill='%23200020'/%3E%3Cpath d='M32.3794 10.2858H29.3563C28.9429 10.2858 28.6199 10.6285 28.6199 11.037V23.3605C28.6199 23.6109 28.2969 23.7032 28.1807 23.4791L21.1527 10.6153C21.0364 10.4044 20.8297 10.2858 20.5842 10.2858H15.5587C15.1452 10.2858 14.8223 10.6285 14.8223 11.037V30.7282C14.8223 31.15 15.1582 31.4795 15.5587 31.4795H18.5817C18.9952 31.4795 19.3181 31.1368 19.3181 30.7282V18.0357C19.3181 17.7853 19.6411 17.693 19.7574 17.9171L26.9792 31.1632C27.0955 31.3741 27.3022 31.4927 27.5476 31.4927H32.3536C32.767 31.4927 33.09 31.15 33.09 30.7414V11.037C33.09 10.6153 32.7541 10.2858 32.3536 10.2858H32.3794Z' fill='%23200020'/%3E%3C/svg%3E",
+            infoRounded: "data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 1C4.58217 1 1 4.58217 1 9C1 13.4178 4.58217 17 9 17C13.4178 17 17 13.4178 17 9C17 4.58217 13.4178 1 9 1Z' stroke='%23200020' stroke-width='1.5' stroke-miterlimit='10'/%3E%3Cpath d='M7.78259 7.7832H9.1739V12.8267' stroke='%23200020' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M7.26086 13H11.087' stroke='%23200020' stroke-width='1.5' stroke-miterlimit='10' stroke-linecap='round'/%3E%3Cpath d='M9.00006 3.86914C8.77649 3.86914 8.55793 3.93544 8.37203 4.05965C8.18613 4.18387 8.04124 4.36042 7.95568 4.56698C7.87012 4.77354 7.84773 5.00083 7.89135 5.22011C7.93497 5.43939 8.04263 5.64082 8.20073 5.79891C8.35882 5.95701 8.56024 6.06467 8.77953 6.10829C8.99881 6.15191 9.2261 6.12952 9.43266 6.04396C9.63922 5.9584 9.81577 5.81351 9.93999 5.62761C10.0642 5.44171 10.1305 5.22315 10.1305 4.99958C10.1305 4.69977 10.0114 4.41223 9.7994 4.20024C9.5874 3.98824 9.29987 3.86914 9.00006 3.86914Z' fill='%23200020'/%3E%3C/svg%3E"
+        };
+
+        // Inicializar iconos estáticos
+        document.getElementById('logo-nequi').src = SVG.logoNequi;
+        document.getElementById('info-icon').src = SVG.infoRounded;
+        document.getElementById('header-icon').src = SVG.arrowUp;
+
+        function getFechaActual() {
+            const now = new Date();
+            const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            let hora = now.getHours();
+            const ampm = hora >= 12 ? 'p.m.' : 'a.m.';
+            hora = hora % 12 || 12;
+            return `${now.getDate()} ${meses[now.getMonth()]} ${now.getFullYear()} ${hora}:${now.getMinutes().toString().padStart(2, '0')} ${ampm}`;
+        }
+
+        function generarReferencia() { return 'NQ' + (Math.floor(Math.random() * 900000) + 100000); }
+
+        function formatAmount(amount) {
+            const num = parseFloat(amount.toString().replace(/[^\d]/g, ''));
+            return isNaN(num) ? '$ 0,00' : '$ ' + num.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatPhone(phone) {
+            const d = phone.replace(/\D/g, '');
+            return d.length === 10 ? d.substring(0,3) + ' ' + d.substring(3,6) + ' ' + d.substring(6) : phone;
+        }
+
+        function cambiarTipo() {
+            const tipo = document.getElementById('tipoComprobante').value;
+            document.getElementById('camposNequi').classList.add('hidden');
+            document.getElementById('camposBreb').classList.add('hidden');
+            document.getElementById('camposBancolombia').classList.add('hidden');
+            if (tipo === 'nequi' || tipo === 'incoming') document.getElementById('camposNequi').classList.remove('hidden');
+            else if (tipo === 'keybreb' || tipo === 'qrbreb') document.getElementById('camposBreb').classList.remove('hidden');
+            else if (tipo === 'bancolombia') document.getElementById('camposBancolombia').classList.remove('hidden');
+        }
+
+        function generarQR(datos) {
+            const canvas = document.getElementById('qr-code');
+            if (!canvas || typeof qrcode === 'undefined') return;
+            const qr = qrcode(0, 'M'); qr.addData(datos); qr.make();
+            const ctx = canvas.getContext('2d');
+            const moduleCount = qr.getModuleCount(), scale = 4, size = moduleCount * scale;
+            canvas.width = size; canvas.height = size;
+            canvas.style.width = '120px'; canvas.style.height = '120px';
+            ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#000000';
+            for (let row = 0; row < moduleCount; row++)
+                for (let col = 0; col < moduleCount; col++)
+                    if (qr.isDark(row, col)) ctx.fillRect(col * scale, row * scale, scale, scale);
+        }
+
+        function generarComprobante() {
+            const tipo = document.getElementById('tipoComprobante').value;
+            const recipient = document.getElementById('recipient').value;
+            const amount = document.getElementById('amount').value;
+            const fecha = document.getElementById('fecha').value || getFechaActual();
+            const refer = document.getElementById('refer').value || generarReferencia();
+            const mensaje = document.getElementById('mensaje').value;
+            const texto = document.getElementById('texto').value;
+            
+            document.getElementById('fecha').value = fecha;
+            document.getElementById('refer').value = refer;
+
+            // Reset
+            ['numeronequi-section','qrbreb-section','bancolombia-section','sender-section','conversation-section'].forEach(id => document.getElementById(id).style.display = 'none');
+            document.getElementById('texto-section').style.display = '';
+            document.getElementById('qr-logo').style.display = '';
+            document.body.classList.remove('bancolombia-simple');
+            const bodyTitle = document.querySelector('.receipt-content__body--title');
+            if (bodyTitle) bodyTitle.style.display = '';
+            
+            const headerTitle = document.getElementById('header-title');
+            const headerIcon = document.getElementById('header-icon');
+            const recipientLabel = document.getElementById('recipient-label');
+            const qrText = document.getElementById('qr-instruction-text');
+            let qrData = '';
+            
+            switch(tipo) {
+                case 'nequi':
+                    headerTitle.textContent = 'Envío realizado'; headerTitle.style.color = '';
+                    headerIcon.src = SVG.arrowUp; headerIcon.style.transform = '';
+                    recipientLabel.textContent = 'Para';
+                    qrText.textContent = '¡Escanea este QR con Nequi para verificar tu envío al instante!';
+                    document.getElementById('numeronequi-section').style.display = '';
+                    document.getElementById('numeronequi-value').textContent = formatPhone(document.getElementById('numeronequi').value);
+                    qrData = `nequi://verify/${refer}/${amount}/${recipient.replace(/\s/g, '')}`;
+                    break;
+                case 'keybreb':
+                    headerTitle.textContent = 'Envío realizado'; headerTitle.style.color = '';
+                    headerIcon.src = SVG.arrowUp; headerIcon.style.transform = '';
+                    recipientLabel.textContent = 'Para';
+                    qrText.textContent = '¡Escanea este QR con Nequi para verificar tu envío al instante!';
+                    document.getElementById('qrbreb-section').style.display = '';
+                    document.getElementById('keyvoucher-value').textContent = formatPhone(document.getElementById('keyVoucher').value);
+                    document.getElementById('banco-value').textContent = document.getElementById('banco').value;
+                    document.getElementById('sender-section').style.display = '';
+                    document.getElementById('sender-value').textContent = formatPhone(document.getElementById('sender').value);
+                    qrData = `nequi://breb/${refer}/${amount}/${document.getElementById('keyVoucher').value}`;
+                    break;
+                case 'qrbreb':
+                    headerTitle.textContent = 'Pago realizado'; headerTitle.style.color = '';
+                    headerIcon.src = SVG.arrowUp; headerIcon.style.transform = '';
+                    recipientLabel.textContent = 'Para';
+                    qrText.textContent = '¡Escanea este QR con Nequi para verificar tu pago al instante!';
+                    document.getElementById('qrbreb-section').style.display = '';
+                    document.getElementById('keyvoucher-value').textContent = formatPhone(document.getElementById('keyVoucher').value);
+                    document.getElementById('banco-value').textContent = document.getElementById('banco').value;
+                    qrData = `nequi://qrbreb/${refer}/${amount}/${document.getElementById('keyVoucher').value}`;
+                    break;
+                case 'bancolombia':
+                    headerTitle.textContent = '¡Pago exitoso!'; headerTitle.style.color = '#200020';
+                    headerIcon.src = SVG.checkMark; headerIcon.style.transform = '';
+                    recipientLabel.textContent = 'Para';
+                    qrText.textContent = '¡Escanea este QR con Nequi para verificar tu pago al instante!';
+                    document.body.classList.add('bancolombia-simple');
+                    if (bodyTitle) bodyTitle.style.display = 'none';
+                    document.getElementById('bancolombia-section').style.display = '';
+                    document.getElementById('banco-bancolombia-value').textContent = document.getElementById('bancoBancolombia').value;
+                    document.getElementById('account-number-value').textContent = document.getElementById('accountNumber').value;
+                    qrData = `nequi://bancolombia/${refer}/${amount}/${document.getElementById('accountNumber').value}`;
+                    break;
+                case 'qrvouch':
+                    headerTitle.textContent = 'Pago realizado'; headerTitle.style.color = '';
+                    headerIcon.src = SVG.arrowUp; headerIcon.style.transform = '';
+                    recipientLabel.textContent = 'Pago en';
+                    qrText.textContent = '¡Escanea este QR con Nequi para verificar tu pago al instante!';
+                    qrData = `nequi://qrvouch/${refer}/${amount}/${recipient.replace(/\s/g, '')}`;
+                    break;
+                case 'incoming':
+                    headerTitle.textContent = 'Envío Recibido'; headerTitle.style.color = '#2fdf75';
+                    headerIcon.src = SVG.incomingArrow; headerIcon.style.transform = 'rotate(180deg)';
+                    recipientLabel.textContent = 'De';
+                    qrText.textContent = '¡Escanea este QR con Nequi para verificar tu envío al instante!';
+                    document.getElementById('texto-section').style.display = 'none';
+                    qrData = `nequi://incoming/${refer}/${amount}/${recipient.replace(/\s/g, '')}`;
+                    break;
+            }
+            
+            document.getElementById('recipient-value').textContent = recipient;
+            document.getElementById('amount-value').textContent = formatAmount(amount);
+            document.getElementById('fecha-value').textContent = fecha;
+            document.getElementById('refer-value').textContent = refer;
+            document.getElementById('texto-value').textContent = texto;
+            
+            if (mensaje && mensaje.trim()) {
+                document.getElementById('conversation-section').style.display = '';
+                document.getElementById('message-value').textContent = mensaje;
+            }
+            generarQR(qrData);
+        }
+
+        function togglePanel() {
+            const panel = document.getElementById('controlPanel');
+            const btn = document.getElementById('toggleBtn');
+            panel.style.display = panel.style.display === 'none' ? '' : 'none';
+            btn.style.display = panel.style.display === 'none' ? '' : 'none';
+        }
+
+        window.onload = function() {
+            document.getElementById('fecha').value = getFechaActual();
+            document.getElementById('refer').value = generarReferencia();
+            generarComprobante();
+        };
+    </script>
+</body>
+</html>

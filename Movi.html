@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mov</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --color-morado:#3C114B;
+      --color-orquidea:#DA0081;
+      --font-size-small:10px;
+      --baseW:390; /* ancho fijo del comprobante */
+
+      /* ===== Color compartido ===== */
+      --valor-color:#b11b4a;   /* Color del monto y bolita */
+
+      /* ===== Medidad de Circulo y flecha abajo (mover en px) ===== */
+      --bf-top: 233px;     /* ↑/↓ posición vertical del círculo */
+      --bf-left: 36px;     /* ←/→ posición horizontal del círculo */
+      --bf-size: 20px;     /* diámetro del círculo */
+      --bf-stroke: 1.5;    /* grosor de línea del ícono */
+      --bf-color: var(--valor-color); /* ahora mismo color que el valor */
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;padding:0;width:100vw;height:100vh;background:#fff;
+      font-family:'Manrope',sans-serif;color:#000;overscroll-behavior:none
+    }
+
+    /* ===== Formulario ===== */
+    .formulario{
+      width:100vw;height:100vh;padding:40px 30px;display:flex;flex-direction:column;align-items:center;
+      background:#fff;overflow:auto
+    }
+    .titulo{font-size:32px;font-weight:700;color:#3C114B;margin-bottom:25px;letter-spacing:.5px}
+    .input-campo{
+      width:100%;max-width:400px;padding:16px;margin:12px 0;border:1px solid #ccc;border-radius:14px;
+      font-size:16px;background:#f9f9f9;color:#3C114B;font-weight:500
+    }
+    .input-campo:focus{outline:none;border-color:#DA0081;box-shadow:0 0 5px #DA0081;background:#fff}
+    .boton{
+      margin-top:18px;padding:15px;width:100%;max-width:400px;font-size:16px;border:none;border-radius:14px;font-weight:700;cursor:pointer;
+      background:linear-gradient(90deg,#DA0081,#f50057);color:#fff;box-shadow:0 4px 15px rgba(218,0,129,.3)
+    }
+
+    /* ===== Animación diamantes (BLANCO) ===== */
+    .finish-overlay{
+      position:fixed;inset:0;background:#fff;display:none;align-items:center;justify-content:center;flex-direction:column;gap:24px;
+      z-index:1200
+    }
+    .diamantes{position:relative;width:160px;height:120px}
+    .diamond{
+      position:absolute;width:70px;height:70px;background:#DA0081;border-radius:12px;transform:rotate(45deg) scale(0);
+      animation:pop .8s ease forwards;box-shadow:0 8px 28px rgba(218,0,129,.35)
+    }
+    .diamond.left{left:12px;top:25px}
+    .diamond.right{left:78px;top:25px;animation-delay:.15s}
+    .spark{position:absolute;width:10px;height:10px;background:#ffb9e1;border-radius:2px;transform:rotate(45deg) scale(0);animation:spark .9s ease forwards .3s}
+    .spark.s1{left:4px;top:-6px}.spark.s2{right:-8px;top:0}.spark.s3{left:40px;bottom:-10px}
+    @keyframes pop{0%{transform:rotate(45deg) scale(0)}55%{transform:rotate(45deg) scale(1.08)}100%{transform:rotate(45deg) scale(1)}}
+    @keyframes spark{0%{transform:rotate(45deg) scale(0);opacity:0}60%{transform:rotate(45deg) scale(1.4);opacity:1}100%{transform:rotate(45deg) scale(.9);opacity:0}}
+
+    /* ===== Visor del comprobante (NEGRO, fijo) ===== */
+    #captura.viewer{
+      display:none;position:fixed;inset:0;background:#000;z-index:1100;overflow:hidden;touch-action:none
+    }
+    .stage{
+      position:absolute;left:50%;top:50%;
+      transform:translate(-50%,-50%) scale(1);
+      transform-origin:center center;width:calc(var(--baseW) * 1px);
+    }
+    .bg{
+      display:block;width:calc(var(--baseW) * 1px);height:auto;user-select:none;-webkit-user-drag:none;pointer-events:none
+    }
+    .bottom-edge-mask{position:absolute;left:0;right:0;bottom:0;height:14px;background:#000;z-index:5;pointer-events:none}
+
+    /* ===== Capas sobrepuestas FIJAS (px exactos) ===== */
+    .input-overlay{
+      position:absolute;background:transparent;border:none;font-size:16px;font-weight:500;color:#3C114B;pointer-events:none;
+      white-space:normal;line-height:1.2
+    }
+
+    /* ===== SOLO CAMBIO DE COLOR EN #nombre y #para ===== */
+    /* Morado oscuro → negro (estilo Nequi) */
+    #nombre, #para{
+      /* tonos del gradiente */
+      --morado-oscuro:#2b003f;
+      --negro:#000000;
+      background: linear-gradient(180deg, var(--morado-oscuro) 0%, var(--negro) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      display:inline-block;
+    }
+
+    /* Coordenadas EXACTAS del arte 390px */
+    #nombre{
+      top:230px;left:61px;width:340px;font-size:12px;font-weight:500;text-transform:uppercase;
+      white-space:normal;word-break:break-word;overflow:visible; /* ILIMITADO */
+    }
+    #valor{
+      top:236px;right:27px;width:280px;font-weight:900;font-size:13px;text-align:right;
+      color: var(--valor-color); /* mismo color que la bolita */
+    }
+    #valor .decimales-pequenos{font-size:var(--font-size-small);vertical-align:baseline}
+
+    /* ===== Texto “Para” debajo del nombre ===== */
+    #para{
+      position:absolute;
+      top:246px;           /* ajusta ↑/↓ a gusto */
+      left:61px;           /* alineado al inicio del nombre */
+      font-size:12px;      /* aumentado */
+      font-weight:500;
+      /* color eliminado porque ya viene del gradiente */
+      pointer-events:none;
+    }
+
+    /* ===== Bolita con flecha hacia abajo (a la izquierda del nombre) ===== */
+    .bolita-flecha{
+      position:absolute;
+      top:var(--bf-top);
+      left:var(--bf-left);
+      width:var(--bf-size);
+      height:var(--bf-size);
+      color:var(--bf-color);
+      pointer-events:none;
+      z-index:6;
+    }
+    .bolita-flecha svg{
+      width:100%;
+      height:100%;
+      display:block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Formulario ===== -->
+  <div class="formulario" id="pantalla">
+    <div class="titulo">Mov</div>
+    <input type="text" id="input-nombre" class="input-campo" placeholder="Nombre completo">
+    <input type="text" id="input-valor"  class="input-campo" placeholder="Monto en pesos">
+    <button id="generar" class="boton">Generar Comprobante</button>
+  </div>
+
+  <!-- ===== Animación diamantes (BLANCO) ===== -->
+  <div id="anim" class="finish-overlay" aria-hidden="true">
+    <div class="diamantes" aria-hidden="true">
+      <div class="diamond left"></div>
+      <div class="diamond right"></div>
+      <div class="spark s1"></div>
+      <div class="spark s2"></div>
+      <div class="spark s3"></div>
+    </div>
+  </div>
+
+  <!-- ===== Visor del comprobante (NEGRO) ===== -->
+  <div id="captura" class="viewer" aria-hidden="true">
+    <div class="stage" id="stage">
+      <img class="bg" id="imagen-fondo" src="5.png" alt="Fondo">
+
+      <!-- Bolita + flecha (a la izquierda del nombre) -->
+      <div class="bolita-flecha" aria-hidden="true">
+        <svg viewBox="0 0 24 24" role="img" aria-label="Flecha hacia abajo en círculo">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="var(--bf-stroke)"/>
+          <path d="M12 7v8" stroke="currentColor" stroke-width="var(--bf-stroke)" stroke-linecap="round"/>
+          <path d="M8.5 12.5 12 16l3.5-3.5" fill="none" stroke="currentColor" stroke-width="var(--bf-stroke)" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- CAPAS FIJAS -->
+      <div id="nombre" class="input-overlay"></div>  <!-- ilimitado -->
+      <div id="para"   class="input-overlay">Para</div>
+      <div id="valor"  class="input-overlay"></div>
+      <div class="bottom-edge-mask"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ===== Refs ===== */
+    const pantalla = document.getElementById('pantalla');
+    const anim     = document.getElementById('anim');
+    const captura  = document.getElementById('captura');
+    const stage    = document.getElementById('stage');
+    const imgBase  = document.getElementById('imagen-fondo');
+
+    const inNombre = document.getElementById('input-nombre');
+    const inValor  = document.getElementById('input-valor');
+
+    const BASE_W = 390;
+    let BASE_H   = null;
+    let inFS     = false;
+
+    function setBaseHeight(){
+      if(imgBase.naturalWidth && imgBase.naturalHeight){
+        BASE_H = BASE_W * (imgBase.naturalHeight / imgBase.naturalWidth);
+      }
+    }
+    if (imgBase.complete) setBaseHeight();
+    imgBase.addEventListener('load', setBaseHeight);
+
+    /* ===== Helpers ===== */
+    function validar(){
+      const n=inNombre.value.trim(), v=inValor.value.trim();
+      if(!n || !v){ alert("Todos los campos son obligatorios."); return false; }
+      if(!/^\d+$/.test(v.replace(/\./g,''))){ alert("El valor debe contener solo números."); return false; }
+      return true;
+    }
+    function formatValorConEstilo(valor){
+      valor = String(valor).replace(/\D/g,'');
+      if(!valor) return "-$ 0,<span class='decimales-pequenos'>00</span>";
+      const numero = parseInt(valor,10);
+      const entero = numero.toLocaleString("es-CO");
+      return `-$ ${entero},<span class='decimales-pequenos'>00</span>`;
+    }
+
+    /* ===== Fullscreen + escala ===== */
+    async function enterFS(el){
+      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if(req){ try{ await req.call(el); }catch{} }
+    }
+    async function exitFS(){
+      if(document.fullscreenElement){ try{ await document.exitFullscreen(); }catch{} }
+    }
+    function scaleToFullscreen(){
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const hBase = BASE_H || BASE_W*2;
+      const s = Math.min(vw/BASE_W, vh/hBase);
+      stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+    }
+    function scaleToNormal(){
+      stage.style.transform = 'translate(-50%,-50%) scale(1)';
+    }
+
+    document.addEventListener('fullscreenchange', ()=>{
+      inFS = !!document.fullscreenElement;
+      if(inFS){
+        scaleToFullscreen();
+      }else{
+        if(captura.style.display==='block') irAlFormulario();
+      }
+    });
+    window.addEventListener('resize', ()=>{ if(inFS) scaleToFullscreen(); });
+    window.addEventListener('orientationchange', ()=>{ if(inFS) setTimeout(scaleToFullscreen,50); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ exitFS(); } });
+
+    /* ===== Flujo principal ===== */
+    document.getElementById('generar').addEventListener('click', async ()=>{
+      if(!validar()) return;
+
+      document.getElementById('nombre').textContent = inNombre.value.trim().toUpperCase(); // ILIMITADO
+      document.getElementById('valor').innerHTML    = formatValorConEstilo(inValor.value.trim());
+
+      try{ history.pushState({screen:'comprobante'},''); }catch{}
+
+      pantalla.style.display='none';
+      anim.style.display='flex';
+      anim.setAttribute('aria-hidden','false');
+
+      setTimeout(async ()=>{
+        anim.style.display='none';
+        anim.setAttribute('aria-hidden','true');
+
+        captura.style.display='block';
+        document.body.style.background='#000';
+        document.body.style.overflow='hidden';
+
+        await enterFS(captura);
+        if(!document.fullscreenElement){
+          inFS = true;
+          scaleToFullscreen();
+        }
+      }, 1000);
+    });
+
+    window.addEventListener('popstate', ()=>{ volverAlFormulario(); });
+
+    async function volverAlFormulario(){
+      await exitFS();
+      if(!document.fullscreenElement){ irAlFormulario(); }
+    }
+    function irAlFormulario(){
+      captura.style.display='none';
+      document.body.style.background='#fff';
+      document.body.style.overflow='auto';
+      pantalla.style.display='flex';
+      inFS=false; scaleToNormal();
+      try{ history.replaceState({screen:'form'},''); }catch{}
+    }
+
+    try{ history.replaceState({screen:'form'},''); }catch{}
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Saldo con Ocultar/Mostrar (WebView OK)</title>
+  <style>
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#0b0b0b; color:#fff; }
+    .app{
+      height:100%; display:flex; align-items:center; justify-content:center;
+      padding:16px;
+    }
+    .card{
+      width:100%; max-width:380px; background:#141414; border-radius:16px; padding:20px;
+      box-shadow:0 12px 30px rgba(0,0,0,.35);
+    }
+    h1{ font-size:18px; margin:0 0 8px 0; color:#bbb; font-weight:600; }
+    .saldo{
+      font-weight:800; letter-spacing:0.2px; margin:0 0 4px 0;
+      font-size:34px; line-height:1.2;
+    }
+    .saldo .signo{ font-weight:800; font-size:0.9em; opacity:.95; }
+    .saldo .dec{ font-weight:900; font-size:.8em; }
+    .total{
+      margin-top:6px; font-size:13px; color:#cfcfcf; opacity:.9;
+    }
+    .row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .btn{
+      -webkit-tap-highlight-color: transparent;
+      display:inline-block; border:0; border-radius:12px; padding:12px 16px;
+      background:#6c2bd9; color:#fff; font-weight:700; font-size:14px; cursor:pointer;
+      box-shadow:0 8px 24px rgba(108,43,217,.35);
+    }
+    .btn:active{ transform:translateY(1px); }
+    .hint{ font-size:12px; color:#9a9a9a; margin-top:12px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="row">
+        <h1>Mi saldo</h1>
+        <!-- Botón visible para tocar -->
+        <button id="btnToggle" class="btn"
+          onclick="toggleOculto()"
+          ontouchstart="event.preventDefault(); toggleOculto();">
+          Ocultar
+        </button>
+      </div>
+
+      <!-- Saldo -->
+      <p class="saldo" id="saldo">
+        <span class="signo" id="mSigno">$</span>
+        <span id="mEnteros">200.000</span><span class="dec" id="mDec">,00</span>
+      </p>
+      <p class="total" id="total">
+        Total: <span id="tSigno">$</span><span id="tEnteros">200.000</span><span id="tDec">,00</span>
+      </p>
+
+      <p class="hint">Toca “Ocultar” para enmascarar el saldo como ***** (estilo apps bancarias).</p>
+    </div>
+  </div>
+
+  <script>
+    // ---- Estado y helpers ----
+    var oculto = false;                 // estado actual
+    var ultimoPretty = '200.000,00';    // valor “real” mostrado (puedes cambiarlo o setearlo desde App Inventor)
+
+    // Si quieres recordar la preferencia entre aperturas del WebView:
+    try{ oculto = (localStorage.getItem('ocultoSaldo') === '1'); }catch(_){}
+
+    function setPretty(pretty){
+      // Guarda y pinta el monto
+      ultimoPretty = String(pretty || '0,00');
+      var partes = ultimoPretty.split(',');
+      var ent = partes[0] || '0';
+      var dec = (partes[1] || '00').padStart(2,'0').slice(0,2);
+
+      document.getElementById('mSigno').textContent = '$';
+      document.getElementById('mEnteros').textContent = ent;
+      document.getElementById('mDec').textContent = ',' + dec;
+
+      document.getElementById('tSigno').textContent = '$';
+      document.getElementById('tEnteros').textContent = ent;
+      document.getElementById('tDec').textContent = ',' + dec;
+
+      if (oculto) aplicarMascara();
+    }
+
+    function aplicarMascara(){
+      // Reemplaza con asteriscos (no cambia el valor guardado)
+      document.getElementById('mSigno').textContent = '$';
+      document.getElementById('mEnteros').textContent = '*****';
+      document.getElementById('mDec').textContent = '';
+
+      document.getElementById('tSigno').textContent = '$';
+      document.getElementById('tEnteros').textContent = '*****';
+      document.getElementById('tDec').textContent = '';
+    }
+
+    function setOculto(flag){
+      oculto = !!flag;
+      // Actualiza texto del botón
+      var btn = document.getElementById('btnToggle');
+      btn.textContent = oculto ? 'Mostrar' : 'Ocultar';
+
+      // Persiste si es posible
+      try{ localStorage.setItem('ocultoSaldo', oculto ? '1' : '0'); }catch(_){}
+
+      // Redibuja
+      if (oculto){ aplicarMascara(); }
+      else{ setPretty(ultimoPretty); }
+    }
+
+    function toggleOculto(){ setOculto(!oculto); }
+
+    // ---- API opcional para App Inventor (puedes llamar desde Bloques con WebViewString) ----
+    // Si recibes por ejemplo {"type":"setAmount","value":"1.234.567,89"} desde AI2:
+    window.setAmountPretty = function(v){ setPretty(String(v||'0,00')); };
+
+    // ---- Inicialización ----
+    setPretty(ultimoPretty);   // pinta el valor inicial
+    setOculto(oculto);         // respeta preferencia guardada (si la hay)
+  </script>
+</body>
+</html>

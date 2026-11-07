@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Envía plata con llaves de Bre-B</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --morado: #261329;
+      --morado-2:#3c114b;
+      --fucsia: #da0081;
+      --fucsia-strong:#e0008e;
+      --rosa:   #f49cd2;
+      --suave:  #fff2fb;
+      --borde:  #f0e0f0;
+      --txt:    #1e0e25;
+      --txt-sec:#6b6b6b;
+
+      --baseW:390; --fs:15px; --oneCM:37.7953px;
+
+      /* Tamaño del ícono “Disponible” (más grande un poquito). */
+      --icon-outer: 52px;
+
+      --radius-lg:14px; --radius-md:10px; --radius-sm:8px;
+
+      --vvh:100vh; --vvw:100vw;
+
+      /* Badge “Envío Realizado” */
+      --badge-font:'Manrope',sans-serif;
+      --badge-size:17px;
+      --badge-weight:380;
+      --icon-size:18px;
+      --icon-stroke:1.5;
+      --badge-dx:4px;
+      --badge-dy:-250px;
+      --badge-left-base:0px;
+      --badge-top-base:0px;
+      /* Subir medio centímetro adicional */
+      --badge-extra-up: calc(var(--oneCM) * 0.5);
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Manrope',sans-serif}
+    html{ -webkit-text-size-adjust:none !important; text-size-adjust:none !important; }
+    body{ background:#fff; color:var(--txt); min-height:100dvh; overflow-x:hidden; -webkit-tap-highlight-color:rgba(218,0,129,.15); }
+
+    .screen{min-height:100dvh;display:flex;flex-direction:column}
+    header{display:flex;align-items:center;gap:10px;padding:12px 16px}
+    .icon-btn{width:26px;height:26px;border:0;background:transparent;color:var(--morado);display:grid;place-items:center;cursor:pointer}
+    .icon-btn svg{width:22px;height:22px}
+    .brand{margin-left:auto;margin-right:auto;font-weight:900;font-size:28px;color:#3a0e46;letter-spacing:.4px}
+
+    .container{padding:0 16px 20px;max-width:520px;margin:0 auto;width:100%}
+    h1{font-size:24px;line-height:1.15;font-weight:800;color:#3a0e46;margin:4px 0 6px}
+    .lead{font-size:14.5px;color:#6a5a71;margin:4px 0 14px}
+
+    .field{margin-bottom:10px}
+    .label{font-size:13px;color:#7b4c87;margin-bottom:6px;font-weight:600}
+    .label-gray{color: var(--txt-sec) !important;} /* Gris solicitado */
+
+    .pill{width:100%;background:var(--suave);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-height:46px;border:1px solid #f1e5f2}
+    .pill input,.pill textarea{flex:1;border:none;background:transparent;outline:none;font-size:15.5px;color:#000;min-height:24px}
+    .pill textarea{resize:vertical;min-height:64px;max-height:160px;line-height:1.35}
+    .help{font-size:12px;color:#8d6f8d;margin-top:6px}
+
+    .card-row{margin-top:6px;background:#fff;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:10px 12px;min-height:56px;display:flex;align-items:center;gap:10px;border:1px solid #f4e8f4}
+    .card-icon{width:var(--icon-outer);height:var(--icon-outer);border-radius:12px;display:grid;place-items:center}
+    .card-title{font-size:15.5px;font-weight:800;color:#1f0c26}
+    .card-title.disponible{font-weight:700;} /* Más delgado para “Disponible” */
+    .card-sub{font-size:12.5px;color:#6b6b6b}
+    .chev{margin-left:auto;display:grid;place-items:center}
+
+    .cta{position:sticky;bottom:0;left:0;right:0;background:#fff;padding:12px 16px;margin-top:auto;border-top:1px solid #f3e7f3}
+    .btn{width:100%;padding:13px 14px;border:none;border-radius:14px;font-size:16px;font-weight:800;color:#fff;background:var(--fucsia);cursor:pointer;transition:background .2s, transform .05s}
+    .btn:hover{background:#c40075}
+    .btn:active{transform:translateY(1px);background:#a90066}
+
+    /* Viewer comprobante */
+    #captura.viewer{display:none;position:fixed;inset:0;background:#fff;z-index:1100;overflow:hidden;touch-action:none;padding:0}
+    @supports not (height: 100svh){ #captura.viewer{ width:var(--vvw); height:var(--vvh); } }
+    .stage{position:absolute;left:50%;top:50%;transform:translate(-50%, -50%) scale(1);transform-origin:center center;width:calc(var(--baseW) * 1px)}
+    .bg{display:block;width:calc(var(--baseW) * 1px);height:auto;user-select:none;-webkit-user-drag:none;pointer-events:none}
+    .input-overlay{position:absolute;background:transparent;border:none;font-size:var(--fs)!important;line-height:1.2;color:#3C114B;font-weight:500;pointer-events:none;padding:0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:1.2em}
+    #nombre{top:404px;left:31px;width:330px}
+    #valor{top:520px;left:30px;width:330px}
+    #nequi{top:464px;left:30px;width:330px}
+    #fecha{top:576px;left:30px;width:330px}
+    #referencia{top:694px;left:30px;width:330px}
+    #disponible{top:640px;left:30px;width:330px}
+    #origenFijo{top:calc(716px + var(--oneCM));left:30px;width:330px;color:#6b296f}
+
+    #edicionEnvioRealizadoMasBolita{
+      position:absolute;display:flex;align-items:center;gap:8px;
+      font-family:var(--badge-font);font-size:var(--badge-size);font-weight:var(--badge-weight);
+      color:#ff3b5c;left:calc(var(--badge-left-base) + var(--badge-dx));
+      /* Subido 0.5 cm */
+      top:calc(var(--badge-top-base) + var(--badge-dy) - var(--badge-extra-up));
+      z-index:4;pointer-events:none;white-space:nowrap;
+    }
+    #edicionEnvioRealizadoMasBolita svg{width:var(--icon-size);height:var(--icon-size);flex:none}
+
+    /* Backdrop & Bottom Sheet (más compacto) */
+    #sheetBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:1200}
+    .sheet{
+      position:fixed;left:0;right:0;bottom:0;background:#fff;
+      border-top-left-radius:18px;border-top-right-radius:18px;
+      box-shadow:0 -14px 40px rgba(0,0,0,.24);
+      padding:14px 16px 18px;transform:translateY(100%);transition:.25s ease;
+      max-width:420px;margin:0 auto;
+    }
+    .sheet .grip{height:4px;width:44px;border-radius:999px;background:#dadada;margin:4px auto 10px}
+    .sheet .sheet-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .sheet .sheet-title{font-size:20px;font-weight:900;margin:0;color:#1f0c26;letter-spacing:.2px}
+    .sheet .sheet-close{border:0;background:transparent;font-size:20px;line-height:1;cursor:pointer;color:#1f0c26;padding:6px 4px}
+    .sheet .row{margin:8px 0;font-size:15px}
+    .sheet .label-pink{color:#d10083;font-weight:900;margin-bottom:2px;font-size:12.5px;letter-spacing:.2px}
+    .sheet .mini-card{margin-top:6px;background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:9px 10px;display:flex;align-items:center;gap:10px;border:1px solid #f4e8f4}
+    .sheet .btn{margin-top:6px}
+    .btn-flat{
+      width:100%;padding:12px 14px;border-radius:14px;font-size:15.5px;font-weight:800;
+      border:1.5px solid #161616;background:#fff;color:#161616;cursor:pointer;transition:background .2s,transform .05s,opacity .2s;
+    }
+    .btn-flat:hover{background:#fafafa}
+    .btn-flat:active{transform:translateY(1px)}
+    .divider{height:1px;background:#f1e6f1;margin:10px -16px}
+
+    .finish-overlay{position:fixed;inset:0;background:#fff;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px;z-index:1300;text-align:center;padding:20px}
+    .diamantes{position:relative;width:150px;height:110px}
+    .diamond{position:absolute;width:64px;height:64px;background:var(--fucsia);transform:rotate(45deg) scale(0);border-radius:12px;animation:pop .8s ease forwards}
+    .diamond.left{left:10px;top:23px}
+    .diamond.right{left:76px;top:23px;animation-delay:.15s}
+    @keyframes pop{0%{transform:rotate(45deg) scale(0)}55%{transform:rotate(45deg) scale(1.08)}100%{transform:rotate(45deg) scale(1)}
+
+    /* ======= Ajuste: Campo "¿Cuánto?" aún más pequeño ======= */
+    /* Compacta solo el PILL de ese campo */
+    #pill-cuanto{
+      min-height: 42px;        /* antes 46px */
+      padding: 8px 12px;       /* antes 10px 12px */
+    }
+    /* Compacta el INPUT de ese campo */
+    #input-valor {
+      height: 44px;            /* antes 50px */
+      font-size: 13.5px;       /* antes 14px */
+      line-height: 1.12;
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== Pantalla formulario ===== -->
+  <div class="screen" id="form-screen">
+    <header>
+      <button class="icon-btn" id="btnBack" aria-label="Volver" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="brand">Bre-B</div>
+      <span style="width:26px"></span>
+    </header>
+
+    <div class="container">
+      <h1>Envía plata con llaves de&nbsp;Bre-B</h1>
+      <p class="lead">Con llaves de Bre-B, tu plata llega inmediatamente.</p>
+
+      <!-- Nombre -->
+      <div class="field">
+        <div class="label">Vas a enviar plata al negocio</div>
+        <div class="pill">
+          <input class="input" id="input-nombre" type="text" placeholder="Nombre del negocio o persona" value="" />
+        </div>
+      </div>
+
+      <!-- Llave -->
+      <div class="field">
+        <div class="label">Vas a enviar plata a la llave</div>
+        <div class="pill">
+          <input class="input" id="input-nequi" type="text" placeholder="Número / Llave" value="" />
+        </div>
+      </div>
+
+      <!-- Banco destino (NUEVO) -->
+      <div class="field">
+        <div class="label">Banco destino</div>
+        <div class="pill">
+          <input class="input" id="input-banco" type="text" placeholder="Ej. Bancolombia" value="" />
+        </div>
+      </div>
+
+      <!-- ¿Cuánto? -->
+      <div class="field">
+        <div class="pill" id="pill-cuanto">
+          <input class="input" id="input-valor" type="tel" inputmode="numeric" placeholder="¿Cuánto?" value="" />
+        </div>
+      </div>
+
+      <!-- La plata saldrá de -->
+      <div class="field">
+        <div class="label label-gray">La plata saldrá de:</div> <!-- Gris -->
+        <div class="card-row" aria-label="Origen de fondos">
+          <div class="card-icon" aria-hidden="true" title="Disponible">
+            <!-- Ícono fucsia escalable -->
+            <svg class="icon-disponible" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Disponible">
+              <g class="icon-base">
+                <rect x="3" y="3" width="58" height="58" rx="12" fill="var(--fucsia-strong)"/>
+              </g>
+              <g class="icon-squares">
+                <rect x="10" y="10" width="22" height="22" rx="var(--radius-lg)" fill="#ff99cc"/>
+                <rect x="32" y="32" width="22" height="22" rx="var(--radius-lg)" fill="#ff99cc"/>
+                <rect x="50" y="8"  width="8"  height="8"  rx="var(--radius-sm)"  fill="#ffffff"/>
+                <rect x="36" y="16" width="12" height="12" rx="var(--radius-md)"  fill="#ffffff"/>
+                <rect x="16" y="36" width="12" height="12" rx="var(--radius-md)"  fill="#ffffff"/>
+                <rect x="8"  y="50" width="8"  height="8"  rx="var(--radius-sm)"  fill="#ffffff"/>
+              </g>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title disponible">Disponible</div> <!-- Más delgado -->
+          </div>
+          <div class="chev" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 6l6 6-6 6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta"><button class="btn" id="sigue" type="button">Seguir</button></div>
+  </div>
+
+  <!-- ===== Hoja de confirmación ===== -->
+  <div id="sheetBackdrop" aria-hidden="true">
+    <div id="confirmSheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="grip"></div>
+      <div class="sheet-header">
+        <h2 id="sheetTitle" class="sheet-title">Confirma el envío</h2>
+        <button id="sheetClose" class="sheet-close" aria-label="Cerrar" type="button">✕</button>
+      </div>
+
+      <div class="row"><div class="label-pink">Pago a:</div><div id="sheetPagoA">—</div></div>
+      <div class="row"><div class="label-pink">A la llave</div><div id="sheetLlave">—</div></div>
+      <div class="row"><div class="label-pink">Banco destino</div><div id="sheetBancoDest">Bancolombia</div></div>
+      <div class="row"><div class="label-pink">¿Cuánto?</div><div id="sheetCuanto">$ —</div></div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div class="label-pink label-gray" style="margin-bottom:4px">La plata saldrá de:</div> <!-- Gris -->
+        <div class="mini-card" aria-label="Origen de fondos">
+          <div class="card-icon" aria-hidden="true" title="Disponible">
+            <svg class="icon-disponible" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Disponible">
+              <g class="icon-base"><rect x="3" y="3" width="58" height="58" rx="12" fill="var(--fucsia-strong)"/></g>
+              <g class="icon-squares">
+                <rect x="10" y="10" width="22" height="22" rx="var(--radius-lg)" fill="#ff99cc"/>
+                <rect x="32" y="32" width="22" height="22" rx="var(--radius-lg)" fill="#ff99cc"/>
+                <rect x="50" y="8"  width="8"  height="8"  rx="var(--radius-sm)"  fill="#ffffff"/>
+                <rect x="36" y="16" width="12" height="12" rx="var(--radius-md)"  fill="#ffffff"/>
+                <rect x="16" y="36" width="12" height="12" rx="var(--radius-md)"  fill="#ffffff"/>
+                <rect x="8"  y="50" width="8"  height="8"  rx="var(--radius-sm)"  fill="#ffffff"/>
+              </g>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title disponible">Disponible</div> <!-- Más delgado -->
+          </div>
+        </div>
+      </div>
+
+      <div class="row"><button class="btn" id="btnEnviar" type="button">Enviar</button></div>
+      <div class="row"><button class="btn-flat" id="btnCorregir" type="button">Corregir</button></div>
+    </div>
+  </div>
+
+  <!-- ===== Animación ===== -->
+  <div id="finish" class="finish-overlay" aria-hidden="true">
+    <div class="diamantes" aria-hidden="true">
+      <div class="diamond left"></div>
+      <div class="diamond right"></div>
+    </div>
+  </div>
+
+  <!-- ===== Visor comprobante ===== -->
+  <div id="captura" class="viewer" aria-hidden="true">
+    <div class="stage" id="stage">
+      <img class="bg" id="bg" src="llave.png" alt="Fondo del comprobante">
+      <div id="nombre" class="input-overlay"></div>
+      <div id="valor" class="input-overlay"></div>
+      <div id="nequi" class="input-overlay"></div>
+      <div id="fecha" class="input-overlay"></div>
+      <div id="referencia" class="input-overlay"></div>
+      <div id="disponible" class="input-overlay"></div>
+      <div id="origenFijo" class="input-overlay">320 816 3452</div>
+
+      <div id="edicionEnvioRealizadoMasBolita" aria-label="Edición envío Realizado más Bolita">
+        <svg viewBox="0 0 24 24" aria-hidden="true" role="img">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke)"/>
+          <path d="M12 7v8" stroke="currentColor" stroke-width="var(--icon-stroke)" stroke-linecap="round"/>
+          <path d="M8.5 12.5 12 16l3.5-3.5" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke)" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Envío Realizado</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var last = '';
+      function formatThousands(d){ return String(d||'').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+      function readFromApp(){
+        try{
+          if(!window.AppInventor || !window.AppInventor.getWebViewString) return;
+          var v = String(window.AppInventor.getWebViewString() || '');
+          if(v !== last){
+            last = v;
+            try{
+              var msg = JSON.parse(v);
+              if(msg && msg.type==='prefill' && msg.data){
+                if(msg.data.cel)    document.getElementById('input-nequi').value  = String(msg.data.cel).replace(/\s+/g,'');
+                if(msg.data.valor){
+                  var digits = String(msg.data.valor).replace(/\D/g,'');
+                  document.getElementById('input-valor').value = digits ? ('$ ' + formatThousands(digits)) : '';
+                }
+                if(msg.data.mensaje)document.getElementById('input-nombre').value = msg.data.mensaje;
+                if(msg.data.banco)  document.getElementById('input-banco').value  = msg.data.banco; // NUEVO
+              }
+            }catch(_){ }
+          }
+        }catch(_){ }
+      }
+      window.sendToApp = function(payload){
+        try{
+          var s = (typeof payload==='string')?payload:JSON.stringify(payload);
+          if(window.AppInventor && window.AppInventor.setWebViewString) window.AppInventor.setWebViewString(s);
+        }catch(_){ }
+      };
+      setInterval(readFromApp, 250);
+      setTimeout(function(){ window.sendToApp({type:'ready', page:'enviar-plata'}); }, 500);
+    })();
+
+    window.addEventListener('DOMContentLoaded', function(){
+      var formScreen = document.getElementById('form-screen');
+      var captura    = document.getElementById('captura');
+      var stage      = document.getElementById('stage');
+      var imgBase    = document.getElementById('bg');
+      var finish     = document.getElementById('finish');
+
+      var inputNombre = document.getElementById('input-nombre');
+      var inputValor  = document.getElementById('input-valor');
+      var inputNequi  = document.getElementById('input-nequi');
+      var inputBanco  = document.getElementById('input-banco'); // NUEVO
+
+      var sheetBackdrop = document.getElementById('sheetBackdrop');
+      var confirmSheet  = document.getElementById('confirmSheet');
+      var sheetClose    = document.getElementById('sheetClose');
+      var btnEnviar     = document.getElementById('btnEnviar');
+      var btnCorregir   = document.getElementById('btnCorregir');
+
+      var sheetPagoA    = document.getElementById('sheetPagoA');
+      var sheetLlave    = document.getElementById('sheetLlave');
+      var sheetBancoDest= document.getElementById('sheetBancoDest');
+      var sheetCuanto   = document.getElementById('sheetCuanto');
+
+      var BASE_W = 390; var BASE_H = null; var inFS=false;
+
+      function setBaseHeight(){ if(imgBase.naturalWidth && imgBase.naturalHeight){ BASE_H = BASE_W * (imgBase.naturalHeight/imgBase.naturalWidth); if(inFS) scaleToFullscreen(); }  }
+      if(imgBase.complete) setBaseHeight();
+      imgBase.addEventListener('load', setBaseHeight);
+
+      document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});
+      document.addEventListener('wheel', function(e){ if(e.ctrlKey){ e.preventDefault(); } }, {passive:false});
+
+      inputNequi.addEventListener('input', function(e){ e.target.value = String(e.target.value || '').replace(/\s+/g,''); });
+
+      inputValor.addEventListener('input', function(e){
+        var digits = e.target.value.replace(/\D/g,'');
+        e.target.value = digits ? ('$ ' + digits.replace(/\B(?=(\d{3})+(?!\d))/g,'.')) : '';
+      });
+
+      function generarFecha(timeZone){
+        timeZone = timeZone || 'America/Bogota';
+        var f = new Date();
+        var fmt = new Intl.DateTimeFormat('es-CO', { timeZone, year:'numeric', month:'long', day:'2-digit', hour:'numeric', minute:'2-digit', hour12:true });
+        var parts = {}; fmt.formatToParts(f).forEach(function(p){ parts[p.type]=p.value; });
+        var ampm = (parts.dayPeriod||'').replace(/\s+/g,' ').toLowerCase();
+        if(!ampm){ var hourNum = Number(parts.hour||0); ampm = hourNum >= 12 ? 'p. m.' : 'a. m.'; }
+        ampm = ampm.replace('p. m.','p.\u00A0m.').replace('a. m.','a.\u00A0m.');
+        var dia = String(parts.day||'').padStart(2,'0'); var mes = (parts.month||'').toLowerCase(); var anio = parts.year || ''; var hora = parts.hour || ''; var min  = String(parts.minute||'').padStart(2,'0');
+        var texto = dia+' de '+mes+' de '+anio+' a las '+hora+':'+min+' '+ampm;
+        texto = texto.replace(/ de /g,'\u00A0de\u00A0').replace(' a las ','\u00A0a\u00A0las\u00A0');
+        document.getElementById('fecha').textContent = texto;
+      }
+
+      function scaleToFullscreen(){ var rect = captura.getBoundingClientRect(); var vw = rect.width; var vh = rect.height; var hBase = BASE_H || BASE_W * (imgBase.naturalHeight ? (imgBase.naturalHeight/imgBase.naturalWidth) : 2); var s = Math.min(vw/BASE_W, vh/hBase); var dpr = Math.max(1, Math.round(window.devicePixelRatio || 1)); var EPS = dpr >= 3 ? 1.004 : 1.003; s = s * EPS; stage.style.transform = 'translate(-50%, -50%) scale('+s+')'; }
+      function scaleToNormal(){ stage.style.transform='translate(-50%, -50%) scale(1)'; }
+      window.addEventListener('resize', function(){ if(inFS) scaleToFullscreen(); });
+      window.addEventListener('orientationchange', function(){ if(inFS) setTimeout(scaleToFullscreen, 60); });
+
+      function irAlFormulario(){ captura.style.display='none'; formScreen.style.display='flex'; document.body.style.background='#fff'; document.body.style.overflow='auto'; inFS=false; scaleToNormal(); resetFormulario(); try{ history.replaceState({screen:'form'},'') }catch(_){} }
+      document.addEventListener('fullscreenchange', function(){ inFS = !!document.fullscreenElement; if(inFS){ requestAnimationFrame(scaleToFullscreen); setTimeout(scaleToFullscreen, 80); } else { if(captura.style.display==='block') irAlFormulario(); } });
+      document.addEventListener('webkitfullscreenchange', function(){ inFS = !!document.webkitFullscreenElement; if(inFS){ requestAnimationFrame(scaleToFullscreen); setTimeout(scaleToFullscreen, 80); } else { if(captura.style.display==='block') irAlFormulario(); } });
+
+      function openSheet(){ sheetBackdrop.style.display='block'; void confirmSheet.offsetWidth; confirmSheet.style.transform='translateY(0)'; }
+      function closeSheet(){ confirmSheet.style.transform='translateY(100%)'; setTimeout(function(){ sheetBackdrop.style.display='none' },200); }
+      sheetClose.addEventListener('click', closeSheet);
+      btnCorregir.addEventListener('click', closeSheet);
+      sheetBackdrop.addEventListener('click', function(e){ if(e.target.id==='sheetBackdrop') closeSheet() });
+
+      // Enmascarado tipo Nequi: deja 3 letras y el resto *
+      function maskNameNequi(full){
+        var t = String(full||'').trim().replace(/\s+/g,' ');
+        if(!t) return 'Desconocido';
+        return t.split(' ').map(function(w){
+          return w.length<=3 ? w : (w.slice(0,3)+'*'.repeat(w.length-3));
+        }).join(' ');
+      }
+
+      function resetFormulario(){
+        inputNequi.value='';
+        inputValor.value='';
+        inputNombre.value='';
+        inputBanco.value=''; // NUEVO
+      }
+
+      function wirePressFeedback(el){
+        if(!el) return;
+        const press=()=>el.classList.add('is-pressed');
+        const release=()=>el.classList.remove('is-pressed');
+        el.addEventListener('pointerdown', press);
+        el.addEventListener('pointerup', release);
+        el.addEventListener('pointercancel', release);
+        el.addEventListener('pointerleave', release);
+        el.addEventListener('blur', release);
+        el.addEventListener('touchstart', press, {passive:true});
+        el.addEventListener('touchend', release, {passive:true});
+        el.addEventListener('touchcancel', release, {passive:true});
+      }
+      wirePressFeedback(document.getElementById('sigue'));
+      wirePressFeedback(btnEnviar);
+      wirePressFeedback(btnCorregir);
+
+      var pendingPayload=null;
+
+      document.getElementById('sigue').addEventListener('click', function(e){
+        e.preventDefault(); e.stopPropagation();
+        var nequiRaw    = String(inputNequi.value||'').replace(/\s+/g,'');
+        var valorDigits = inputValor.value.replace(/\D/g,'');
+        var nombreInput = String(inputNombre.value||'').trim();
+        var bancoInput  = String(inputBanco.value||'').trim();
+
+        if(!nequiRaw){ alert('Escribe la llave (número)'); return }
+        if(!valorDigits){ alert('Escribe el valor'); return }
+
+        var ent = valorDigits.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        var valorPretty = ent + ',00';
+        var bancoDestino = bancoInput || 'Bancolombia'; // default si no escriben
+
+        // Hoja de confirmación
+        document.getElementById('sheetPagoA').textContent     = maskNameNequi(nombreInput || 'Usuario Colombia');
+        document.getElementById('sheetLlave').textContent     = nequiRaw;
+        document.getElementById('sheetBancoDest').textContent = bancoDestino;
+        document.getElementById('sheetCuanto').textContent    = '$ ' + valorPretty;
+
+        pendingPayload = { nequi: nequiRaw, valorDigits, valorPretty, nombreFull: nombreInput || 'Usuario Colombia', bancoDestino };
+
+        openSheet();
+      });
+
+      function placeBadgeRelativeToNombre(){
+        var nombre = document.getElementById('nombre');
+        if(!nombre || !stage) return;
+        var cs = getComputedStyle(nombre);
+        var baseLeft = parseFloat(cs.left) || 0;
+        var baseTop  = parseFloat(cs.top)  || 0;
+        var oneCM = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--oneCM') || '37.7953');
+        stage.style.setProperty('--badge-left-base', baseLeft + 'px');
+        stage.style.setProperty('--badge-top-base',  (baseTop - oneCM) + 'px');
+      }
+
+      document.getElementById('btnEnviar').addEventListener('click', async function(){
+        closeSheet(); if(!pendingPayload) return; this.disabled = true;
+        var nequi = pendingPayload.nequi,
+            valorPretty = pendingPayload.valorPretty,
+            nombreFull = pendingPayload.nombreFull,
+            bancoDestino = pendingPayload.bancoDestino;
+
+        try{ /* noop */ }catch(e){} finally{ this.disabled=false; }
+
+        // Comprobante
+        var nombreMasked = maskNameNequi(nombreFull);
+        document.getElementById('nombre').textContent     = nombreMasked;
+
+        // AHORA el campo "valor" muestra el BANCO DESTINO (antes decía "Disponible")
+        document.getElementById('valor').textContent      = bancoDestino || 'Disponible';
+
+        // El monto queda en "disponible" como estaba
+        document.getElementById('disponible').textContent = '$ ' + valorPretty;
+
+        document.getElementById('nequi').textContent      = nequi;
+        document.getElementById('referencia').textContent = 'M' + Math.floor(1e7 + Math.random()*9e7);
+        document.getElementById('origenFijo').textContent = '320 816 3452';
+        generarFecha();
+
+        placeBadgeRelativeToNombre();
+
+        // Animación + fullscreen del comprobante
+        document.getElementById('finish').style.display='flex';
+        document.getElementById('finish').setAttribute('aria-hidden','false');
+        setTimeout(async function(){
+          document.getElementById('finish').style.display='none';
+          document.getElementById('finish').setAttribute('aria-hidden','true');
+          document.getElementById('form-screen').style.display='none';
+          document.getElementById('captura').style.display='block';
+          document.body.style.background = '#fff';
+          document.body.style.overflow='hidden';
+          (function scale(){ 
+            var rect = document.getElementById('captura').getBoundingClientRect(); 
+            var vw = rect.width; var vh = rect.height; 
+            var hBase = (document.getElementById('bg').naturalHeight && document.getElementById('bg').naturalWidth) ? (390 * (document.getElementById('bg').naturalHeight/document.getElementById('bg').naturalWidth)) : 390 * 2;
+            var s = Math.min(vw/390, vh/hBase); 
+            document.getElementById('stage').style.transform = 'translate(-50%, -50%) scale('+s+')';
+          })();
+          try{
+            var target = document.getElementById('captura');
+            if (target.requestFullscreen) await target.requestFullscreen();
+            else if (target.webkitRequestFullscreen) await target.webkitRequestFullscreen();
+          }catch(_){ }
+        }, 900);
+      });
+
+      window.addEventListener('resize', placeBadgeRelativeToNombre);
+      window.addEventListener('load', placeBadgeRelativeToNombre);
+
+      document.getElementById('captura').addEventListener('click', async function(){
+        if(document.fullscreenElement || document.webkitFullscreenElement){
+          try{ await (document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen && document.webkitExitFullscreen()); }catch(_){ }
+        } else {
+          // Volver al formulario
+          document.getElementById('captura').style.display='none';
+          document.getElementById('form-screen').style.display='flex';
+          document.body.style.overflow='auto';
+        }
+      });
+      document.getElementById('btnBack').addEventListener('click', async function(){
+        if(document.fullscreenElement || document.webkitFullscreenElement){
+          try{ await (document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen && document.webkitExitFullscreen()); }catch(_){}
+        }
+        // Volver al formulario
+        document.getElementById('captura').style.display='none';
+        document.getElementById('form-screen').style.display='flex';
+        document.body.style.overflow='auto';
+      });
+    });
+  </script>
+</body>
+</html>

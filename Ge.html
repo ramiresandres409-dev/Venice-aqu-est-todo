@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Enviar plata</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#ffffff">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Variables del nuevo formulario */
+      --morado-oscuro: #1d001d; 
+      --fucsia-app: #d6007f; 
+      --rosa-fondo: #fffafd;
+      --rosa-boton: #e77bb9;
+      --gris-suave: #b0a3b0;
+
+      /* Variables de Ge.html necesarias para el resto de pantallas */
+      --morado: #200020; --fucsia: #da0081; --rosa: #f49cd2; 
+      --suave: #fff2fb;
+      --txt: #200020; --txt-sec: #6b6b6b; --baseW: 390; --fs: 15.5px;
+      --icon-base-fucsia: #e0008e;
+      --icon-rosa-clara: #ff99cc;
+      --icon-blanco: #ffffff;
+      --icon-outer: 45px;
+      --icon-base-scale: 1.9; --icon-base-dy: -2px;
+      --icon-sq-scale: 1.2; --icon-sq-dx: 0px; --icon-sq-dy: 0px;
+      --icon-sq1: var(--icon-rosa-clara); --icon-sq2: var(--icon-rosa-clara);
+      --icon-sq3: var(--icon-blanco); --icon-sq4: var(--icon-blanco);
+      --icon-sq5: var(--icon-blanco); --icon-sq6: var(--icon-blanco);
+      --radius-lg: 10px; --radius-md: 8px; --radius-sm: 6px;
+      --sq1-scale: 1.0; --sq1-dx: 0px; --sq1-dy: 0px;
+      --sq2-scale: 1.0; --sq2-dx: 0px; --sq2-dy: 0px;
+      --sq3-scale: 1.0; --sq3-dx: 0px; --sq3-dy: 0px;
+      --sq4-scale: 1.0; --sq4-dx: 0px; --sq4-dy: 0px;
+      --sq5-scale: 1.0; --sq5-dx: 0px; --sq5-dy: 0px;
+      --sq6-scale: 1.0; --sq6-dx: 0px; --sq6-dy: 0px;
+      --badge-font: 'Manrope', sans-serif;
+      --badge-size: 18px; --badge-weight: 380; --badge-color: #ff3b5c;
+      --icon-size: 19px; --icon-stroke: 1.5;
+      --badge-dx: 5px; --badge-dy: -260px;
+      --badge-left-base: 0px; --badge-top-base: 0px;
+      --vvh: 100vh; --vvw: 100vw;
+    }
+
+    html { -webkit-text-size-adjust: none !important; text-size-adjust: none !important; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; }
+    html, body { height: 100%; background: #ffffff; color: var(--txt); overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+    body { overflow-x: hidden; }
+
+    /* === ESTILOS DEL NUEVO FORMULARIO (EXACTOS) === */
+    .screen { min-height: 100dvh; display: flex; flex-direction: column; background: #ffffff; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 2px; flex: none; }
+    .icon-btn { width: 36px; height: 36px; border: 0; background: transparent; cursor: pointer; color: #000000; display: grid; place-items: center; }
+    .icon-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .container { padding: 0 22px 20px; max-width: 500px; margin: 0 auto; width: 100%; flex: 1; display: flex; flex-direction: column; }
+    h1 { font-size: 26px; font-weight: 600; margin: 4px 0 18px; color: var(--morado-oscuro); letter-spacing: -0.5px; }
+    .form-content { flex: 1; }
+    .field { margin-bottom: 10px; }
+    .field-large { margin-bottom: 14px; }
+    .input-wrap { position: relative; width: 100%; border-radius: 6px; background: var(--rosa-fondo); display: flex; align-items: center; min-height: 52px; padding: 0 16px; gap: 10px; }
+    .input-wrap-large { min-height: 76px; align-items: flex-start; padding: 14px 16px; }
+    .input { flex: 1; border: none; background: transparent; outline: none; font-size: 16px; color: #000000; height: 100%; font-weight: 400; }
+    .input-large { height: 100%; width: 100%; resize: none; }
+    .input::placeholder { color: #000000; opacity: 0.85; font-weight: 300; }
+    .icon-inset { color: var(--morado-oscuro); display: flex; align-items: center; cursor: pointer; padding-left: 5px; }
+    .icon-inset svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+    .help { font-size: 11px; color: var(--gris-suave); margin: 5px 2px 0; font-weight: 400; letter-spacing: -0.1px; }
+    .section-title { margin-top: 18px; font-weight: 500; color: var(--morado-oscuro); font-size: 15.5px; letter-spacing: -0.2px; }
+    .card-row { margin-top: 8px; background: #ffffff; border-radius: 10px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07); padding: 6px 16px; min-height: 56px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(0, 0, 0, 0.01); }
+    .card-title { font-size: 16px; font-weight: 400; color: var(--morado-oscuro); }
+    .card-icon { width: 40px; height: 40px; flex: none; display: flex; align-items: center; justify-content: center; }
+    .card-icon svg { width: 100%; height: 100%; }
+    .chev { margin-left: auto; display: flex; align-items: center; color: #000000; }
+    .chev svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .cta { background: #ffffff; padding: 20px 22px 28px; width: 100%; max-width: 500px; margin: 0 auto; flex: none; }
+    .btn { width: 100%; padding: 16px; background: var(--rosa-boton); color: #ffffff; font-size: 16px; font-weight: 500; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s ease, box-shadow 0.2s ease; -webkit-user-select: none; user-select: none; text-align: center; outline: none; }
+    .btn.brillar { background: var(--fucsia-app) !important; box-shadow: 0 4px 16px rgba(214, 0, 127, 0.4); }
+
+    /* === ESTILOS DE GE.HTML (Pantallas secundarias) === */
+    .input-wrap.textarea { padding: 10px 12px; min-height: 86px; align-items: flex-start; }
+    .input.textarea { height: auto; min-height: 68px; max-height: 180px; line-height: 1.4; resize: vertical; }
+    .card-row-revisa { display: flex; align-items: center; gap: 12px; background-color: #FAFAFA; border: 1px solid #E0E0E0; border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.2s ease; min-height: 68px; width: 100%; }
+    .card-row-revisa:active { background-color: #F0F0F0; transform: scale(0.98); }
+    .card-icon-revisa { flex-shrink: 0; width: 46px; height: 46px; }
+    .card-icon-revisa svg { width: 100%; height: 100%; display: block; }
+    .card-title-revisa { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; color: #1A1A1A; flex-grow: 1; }
+    .chev-revisa { flex-shrink: 0; width: 20px; height: 20px; color: #999999; }
+    .chev-revisa svg { width: 100%; height: 100%; }
+    .nequi-screen { font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FFFFFF; width: 100%; height: 100vh; height: 100dvh; padding: 20px 16px; display: none; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .nequi-screen.active { display: flex; }
+    .nequi-header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
+    .nequi-btn-back, .nequi-btn-help { background: none; border: none; cursor: pointer; padding: 10px; color: #1A1A1A; border-radius: 50%; transition: background-color 0.2s ease; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+    .nequi-btn-back:active, .nequi-btn-help:active { background-color: #F0F0F0; }
+    .nequi-btn-help { border: 1.5px solid #1A1A1A; }
+    .nequi-main-heading { font-family: 'Manrope', sans-serif; font-size: 24px; font-weight: 700; line-height: 1.25; color: #2C003E; margin-bottom: 8px; letter-spacing: -0.3px; flex-shrink: 0; }
+    .nequi-section-block { margin-bottom: 24px; flex-shrink: 0; }
+    .nequi-section-heading { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 600; color: #1A1A1A; margin-bottom: 12px; }
+    .nequi-info-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #F0F0F0; gap: 12px; }
+    .nequi-info-row:last-child { border-bottom: none; }
+    .nequi-info-label { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 500; color: #666666; flex-shrink: 0; }
+    .nequi-info-value { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 500; color: #1A1A1A; text-align: right; word-break: break-word; }
+    .nequi-text-pink { color: #E6007E; font-weight: 700; }
+    .nequi-text-bold { font-weight: 700; }
+    .nequi-total-section { display: flex; justify-content: space-between; align-items: center; margin: 32px 0 24px 0; padding: 16px 0; border-top: 2px solid #F5F5F5; flex-shrink: 0; }
+    .nequi-total-label { font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 600; color: #1A1A1A; }
+    .nequi-total-amount { font-family: 'Manrope', sans-serif; font-size: 28px; font-weight: 800; color: #E6007E; letter-spacing: -0.5px; }
+    .nequi-button-group { display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding-bottom: env(safe-area-inset-bottom, 0); flex-shrink: 0; }
+    .nequi-btn-primary, .nequi-btn-secondary { font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; padding: 16px 24px; border-radius: 28px; border: none; cursor: pointer; transition: all 0.15s ease; width: 100%; min-height: 52px; -webkit-appearance: none; appearance: none; }
+    .nequi-btn-primary { background-color: #E6007E; color: #FFFFFF; box-shadow: 0 2px 8px rgba(230, 0, 126, 0.3); }
+    .nequi-btn-primary:active { background-color: #C4006B; transform: scale(0.98); }
+    .nequi-btn-secondary { background-color: #FFFFFF; color: #1A1A1A; border: 1.5px solid #1A1A1A; }
+    .nequi-btn-secondary:active { background-color: #F5F5F5; transform: scale(0.98); }
+    .nequi-screen::-webkit-scrollbar { display: none; }
+    .nequi-screen { -ms-overflow-style: none; scrollbar-width: none; }
+
+    #nequi-loader-overlay { position: fixed; inset: 0; width: 100vw; height: 100vh; background-color: #ffffff; display: none; justify-content: center; align-items: center; z-index: 100000; transition: opacity 0.5s ease, visibility 0.5s ease; }
+    #nequi-loader-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .nequi-loader { position: relative; width: 48px; height: 38px; animation: halfTurn 2.8s infinite ease-in-out; }
+    .nequi-square { position: absolute; width: 24px; height: 24px; background-color: #E4007C; transform: rotate(45deg); top: 7px; border-radius: 3px; }
+    .nequi-square:first-child { left: 0; animation: mergeLeft 2.8s infinite ease-in-out; }
+    .nequi-square:last-child { right: 0; animation: mergeRight 2.8s infinite ease-in-out; }
+    @keyframes halfTurn { 0%, 15% { transform: rotate(0deg); } 40% { transform: rotate(180deg); } 100% { transform: rotate(180deg); } }
+    @keyframes mergeLeft { 0%, 40% { transform: rotate(45deg) translateX(0); } 65% { transform: rotate(45deg) translateX(12px); } 70% { transform: rotate(0deg) translateX(12px); } 80% { transform: rotate(0deg) translateX(12px); } 85% { transform: rotate(45deg) translateX(12px); } 95%, 100% { transform: rotate(45deg) translateX(0); } }
+    @keyframes mergeRight { 0%, 40% { transform: rotate(45deg) translateX(0); } 65% { transform: rotate(45deg) translateX(-12px); } 70% { transform: rotate(0deg) translateX(-12px); } 80% { transform: rotate(0deg) translateX(-12px); } 85% { transform: rotate(45deg) translateX(-12px); } 95%, 100% { transform: rotate(45deg) translateX(0); } }
+
+    #captura.viewer { display: none; position: absolute; left: 0; top: 0; width: 100svw; height: 100svh; background: #fff; z-index: 1100; overflow: hidden; touch-action: none; padding: 0; -webkit-tap-highlight-color: transparent; }
+    @supports not (height: 100svh) { #captura.viewer { width: var(--vvw); height: var(--vvh); } }
+    @supports (padding: max(0px)) { #captura.viewer { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); } }
+    #captura.viewer:fullscreen, #captura.viewer:-webkit-full-screen { width: 100svw; height: 100svh; background: #fff; margin: 0; }
+    #captura.viewer::backdrop { background: #fff; }
+    .stage { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1); transform-origin: center center; width: calc(var(--baseW) * 1px); will-change: transform; }
+    .bg { display: block; width: calc(var(--baseW) * 1px); height: auto; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+    .bottom-edge-mask { position: absolute; left: -20px; right: -20px; bottom: -4px; height: 8px; background: #fff; display: none; }
+    #captura.viewer .bottom-edge-mask { display: block; }
+    .input-overlay { position: absolute; background: transparent; border: none; font-size: var(--fs) !important; line-height: 1.2; color: #3C114B; font-weight: 500; pointer-events: none; appearance: none; padding: 0; margin: 0; -webkit-text-size-adjust: none !important; text-size-adjust: none !important; white-space: nowrap !important; word-break: keep-all !important; overflow: hidden !important; text-overflow: ellipsis !important; max-height: 1.2em; letter-spacing: .01px; }
+    #nombre { top: 365px; left: 31px; width: 330px; }
+    #valor { top: 427px; left: 30px; width: 330px; }
+    #nequi { top: 482px; left: 30px; width: 330px; }
+    #fecha { top: 540px; left: 30px; width: 330px; }
+    #referencia { top: 597px; left: 30px; width: 330px; }
+    #disponible { top: 656px; left: 30px; width: 330px; }
+    #edicionEnvioRealizadoMasBolita { position: absolute; display: flex; align-items: center; gap: 8px; font-family: var(--badge-font); font-size: var(--badge-size); font-weight: 380; color: #ff3b5c; left: calc(var(--badge-left-base) + var(--badge-dx)); top: calc(var(--badge-top-base) + var(--badge-dy)); z-index: 4; pointer-events: none; white-space: nowrap; }
+    #edicionEnvioRealizadoMasBolita svg { width: var(--icon-size); height: var(--icon-size); flex: none; }
+
+    .noti-nequi { position: fixed; top: -220px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 420px; background: #1f1f1f; color: #fff; border-radius: 18px; padding: 15px; display: flex; gap: 12px; transition: top .45s ease; z-index: 99999; }
+    .noti-nequi.show { top: 15px; }
+    .noti-nequi .icono { width: 48px; height: 48px; background: #fff; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+    .noti-nequi .icono img { width: 100%; height: 100%; object-fit: cover; }
+    .noti-nequi .contenido h4 { margin: 0; font-size: 16px; font-weight: 600; }
+    .noti-nequi .contenido p { margin: 5px 0 0; font-size: 14px; color: #d0d0d0; }
+    
+    svg rect { rx: 0 !important; ry: 0 !important; }
+    #sq1, #sq2 { fill: var(--sq1-color, var(--icon-sq1)) !important; }
+    #sq3, #sq5 { fill: #ffffff !important; }
+    #sq4, #sq6 { fill: #ffd6ea !important; }
+    #nombre, #valor, #nequi, #fecha, #referencia, #disponible { color: #000 !important; }
+    .nequi-total-amount { font-size: 24px !important; color: #E6007E !important; font-weight: 700 !important; }
+    .nequi-total-label { font-size: 15px !important; color: #1A1A1A !important; font-weight: 600 !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Formulario (Estructura EXACTA proporcionada) ===== -->
+  <div class="screen" id="form-screen">
+    <header>
+      <button class="icon-btn" id="btnBack" aria-label="Volver">
+        <svg viewBox="0 0 24 24">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </button>
+      <button class="icon-btn" aria-label="Ayuda">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </button>
+    </header>
+
+    <main class="container">
+      <h1>Envía plata</h1>
+
+      <div class="form-content">
+        <div class="field">
+          <div class="input-wrap">
+            <input type="tel" class="input" id="input-nequi" placeholder="Cel" autocomplete="off" inputmode="numeric" maxlength="12" />
+            <div class="icon-inset">
+              <svg viewBox="0 0 24 24">
+                <circle cx="15.5" cy="8.5" r="3.5" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M10 18.5c0-2.5 2.5-4.5 5.5-4.5s5.5 2 5.5 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <line x1="4" y1="9" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="1" y1="12" x2="7" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          <p class="help">Revisa bien el número para enviarle a la persona correcta</p>
+        </div>
+
+        <div class="field">
+          <div class="input-wrap">
+            <input type="text" class="input" id="input-valor" placeholder="¿Cuánto vas a enviar?" inputmode="numeric" />
+          </div>
+        </div>
+
+        <div class="field-large">
+          <div class="input-wrap input-wrap-large">
+            <textarea class="input input-large" id="input-nombre" placeholder="Mensaje (Opcional)" maxlength="200"></textarea>
+          </div>
+        </div>
+
+        <p class="section-title">¿De dónde saldrá la plata?</p>
+
+        <div class="card-row">
+          <div class="card-icon">
+            <svg viewBox="0 0 100 100">
+              <rect width="100" height="100" rx="16" fill="#d6007f"/>
+              <rect x="8" y="8" width="38" height="38" rx="6" fill="#e56cb3"/>
+              <rect x="74" y="8" width="18" height="18" rx="4" fill="#e56cb3"/>
+              <rect x="50" y="24" width="22" height="22" rx="5" fill="#edd6f5"/>
+              <rect x="24" y="50" width="22" height="22" rx="5" fill="#f09ecc"/>
+              <rect x="54" y="54" width="38" height="38" rx="6" fill="#e56cb3"/>
+              <rect x="8" y="74" width="18" height="18" rx="4" fill="#edd6f5"/>
+            </svg>
+          </div>
+          <span class="card-title">Disponible</span>
+          <div class="chev">
+            <svg viewBox="0 0 24 24">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+    </main>
+
+    <div class="cta">
+      <button type="button" id="btn-continuar" class="btn">Continuar</button>
+    </div>
+  </div>
+
+  <!-- ===== PANTALLA: REVISA LOS DATOS (Ge.html) ===== -->
+  <div id="screen-revisa-datos" class="nequi-screen">
+    <div class="nequi-header-nav">
+        <button class="nequi-btn-back" id="btnVolverDesdeRevisa" aria-label="Volver">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <button class="nequi-btn-help" aria-label="Ayuda">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </button>
+    </div>
+    <h1 class="nequi-main-heading">Revisa los datos antes de enviar la plata</h1>
+    <section class="nequi-section-block">
+        <h2 class="nequi-section-heading">Resumen del envío</h2>
+        <div class="nequi-info-row"><span class="nequi-info-label">Le vas a enviar a:</span><span class="nequi-info-value nequi-text-pink" id="rev-nombre">—</span></div>
+        <div class="nequi-info-row"><span class="nequi-info-label">N° de celular</span><span class="nequi-info-value nequi-text-bold" id="rev-celular">—</span></div>
+    </section>
+    <section class="nequi-section-block">
+        <h2 class="nequi-section-heading">¿De dónde saldrá la plata?</h2>
+        <div class="card-row-revisa">
+            <div class="card-icon-revisa" aria-hidden="true">
+                <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Disponible">
+                    <rect x="3" y="3" width="58" height="58" fill="#DA0081"/><rect x="10" y="10" width="22" height="22" fill="#F49CD2"/><rect x="32" y="32" width="22" height="22" fill="#F49CD2"/><rect x="50" y="8" width="8" height="8" fill="#FFFFFF"/><rect x="36" y="16" width="12" height="12" fill="#FFD6EA"/><rect x="16" y="36" width="12" height="12" fill="#FFFFFF"/><rect x="8" y="50" width="8" height="8" fill="#FFD6EA"/>
+                </svg>
+            </div>
+            <span class="card-title-revisa">Disponible</span>
+            <div class="chev-revisa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+    </section>
+    <div class="nequi-total-section">
+        <span class="nequi-total-label">Total a enviar</span>
+        <span class="nequi-total-amount" id="rev-monto">$ —</span>
+    </div>
+    <div class="nequi-button-group">
+        <button class="nequi-btn-primary" id="btnEnviarPlata">Enviar plata</button>
+        <button class="nequi-btn-secondary" id="btnCorregirDatos">Corregir datos</button>
+    </div>
+  </div>
+
+  <!-- ===== Animación de Carga Nequi (4s) ===== -->
+  <div id="nequi-loader-overlay">
+    <div class="nequi-loader"><div class="nequi-square"></div><div class="nequi-square"></div></div>
+  </div>
+
+  <!-- ===== Visor comprobante ===== -->
+  <div id="captura" class="viewer" aria-hidden="true">
+    <div class="stage" id="stage">
+      <img class="bg" id="bg" src="3.png" alt="Fondo del comprobante">
+      <div id="nombre" class="input-overlay"></div>
+      <div id="valor" class="input-overlay"></div>
+      <div id="nequi" class="input-overlay"></div>
+      <div id="fecha" class="input-overlay"></div>
+      <div id="referencia" class="input-overlay"></div>
+      <div id="disponible" class="input-overlay">Disponible</div>
+      <div id="edicionEnvioRealizadoMasBolita" aria-label="Edición envío Realizado más Bolita">
+        <svg viewBox="0 0 24 24" aria-hidden="true" role="img"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke)"/><path d="M12 7v8" stroke="currentColor" stroke-width="var(--icon-stroke)" stroke-linecap="round"/><path d="M8.5 12.5 12 16l3.5-3.5" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke)" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Envío Realizado</span>
+      </div>
+      <div class="bottom-edge-mask"></div>
+    </div>
+  </div>
+
+  <!-- ===== Bridge App Inventor ===== -->
+  <script>
+    (function(){
+      var last = "";
+      function formatThousands(digits){ return String(digits||'').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+      function readFromApp(){
+        try{
+          if(!window.AppInventor || !window.AppInventor.getWebViewString) return;
+          var v = String(window.AppInventor.getWebViewString() || "");
+          if(v !== last){
+            last = v;
+            try{
+              var msg = JSON.parse(v);
+              if (msg && msg.type==='prefill' && msg.data){
+                if(msg.data.cel)    document.getElementById('input-nequi').value  = msg.data.cel;
+                if(msg.data.valor){ var digits = String(msg.data.valor).replace(/\D/g,''); document.getElementById('input-valor').value = digits ? ('$ ' + formatThousands(digits)) : ''; }
+                if(msg.data.mensaje)document.getElementById('input-nombre').value = msg.data.mensaje;
+              }
+            }catch(_){}}
+        }catch(_){}}
+      window.sendToApp = function(payload){ try{ var s = (typeof payload==='string')?payload:JSON.stringify(payload); if (window.AppInventor && window.AppInventor.setWebViewString) window.AppInventor.setWebViewString(s); }catch(_){} };
+      setInterval(readFromApp, 250);
+      setTimeout(function(){ window.sendToApp({type:'ready', page:'enviar-plata'}); }, 500);
+    })();
+  </script>
+
+  <!-- ===== Lógica UI & visor ===== -->
+  <script>
+    window.addEventListener('DOMContentLoaded', function(){
+      var formScreen = document.getElementById('form-screen');
+      var screenRevisa = document.getElementById('screen-revisa-datos');
+      var captura = document.getElementById('captura');
+      var stage = document.getElementById('stage');
+      var imgBase = document.getElementById('bg');
+      var inputNombre = document.getElementById('input-nombre');
+      var inputValor = document.getElementById('input-valor');
+      var inputNequi = document.getElementById('input-nequi');
+      var btnEnviarPlata = document.getElementById('btnEnviarPlata');
+      var btnCorregirDatos = document.getElementById('btnCorregirDatos');
+      var btnVolverDesdeRevisa = document.getElementById('btnVolverDesdeRevisa');
+      var revNombre = document.getElementById('rev-nombre');
+      var revCelular = document.getElementById('rev-celular');
+      var revMonto = document.getElementById('rev-monto');
+      var BASE_W = 390; var BASE_H = null; var inFS=false;
+
+      var NOMBRES_CO = ["Juan","Carlos","Andrés","Santiago","Sebastián","Felipe","Julián","Diego","Camilo","David","Nicolás","Jorge","José","Luis","Miguel","Hernán","Oscar","Héctor","Mauricio","Wilson","Alejandro","Fernando","Ricardo","Iván","Eduardo","Hugo","Cristian","Kevin","Brayan","Esteban","Mateo","Tomás","Emilio","Simón","Álvaro","Germán","Rubén","Pedro","Jaime","Rafael","Samuel"];
+      var NOMBRES_F_CO = ["María","Laura","Daniela","Carolina","Diana","Andrea","Valentina","Camila","Paula","Sara","Tatiana","Juliana","Luisa","Natalia","Alejandra","Angélica","Sofía","Gabriela","Isabela","Manuela","Yuliana","Karen","Viviana","Eliana","Lina","Mónica","Ximena","Liliana","Patricia","Rocío","Sandra","Paola","Ana","Claudia","Yenny","Yulieth","Yasmin"];
+      var APELLIDOS_CO = ["García","Rodríguez","Martínez","González","Hernández","Pérez","López","Sánchez","Ramírez","Torres","Álvarez","Gómez","Díaz","Moreno","Muñoz","Rojas","Guerrero","Jiménez","Castro","Vargas","Suárez","Ortega","Castañeda","Romero","Cortés","Mendoza","Rivera","Quintero","Bonilla","Cardona","Valencia","Duque","Mejía","Reyes","Salazar","Cárdenas","Mora","Acosta","Herrera","Naranjo","Bermúdez","Prieto","Nieto","Forero","Barrera","Patiño","Uribe"];
+
+      function loadUsed(){ try{ return new Set(JSON.parse(localStorage.getItem('usedNamesCO_v2')||'[]')); }catch(_){ return new Set(); } }
+      function saveUsed(set){ try{ localStorage.setItem('usedNamesCO_v2', JSON.stringify(Array.from(set))); }catch(_){} }
+      function loadMap(){ try{ return JSON.parse(localStorage.getItem('phoneNameMapCO_v2')||'{}'); }catch(_){ return {}; } }
+      function saveMap(map){ try{ localStorage.setItem('phoneNameMapCO_v2', JSON.stringify(map)); }catch(_){} }
+      function randomChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+      function generateUniqueNameSurname(usedSet){
+        var tries = 0;
+        while(tries++ < 300){
+          var first = Math.random()<0.5 ? randomChoice(NOMBRES_CO) : randomChoice(NOMBRES_F_CO);
+          var last  = randomChoice(APELLIDOS_CO);
+          var full  = first + ' ' + last;
+          var key   = full.toLowerCase();
+          if(!usedSet.has(key)){ usedSet.add(key); saveUsed(usedSet); return full; }
+        }
+        return "Usuario Colombia";
+      }
+      function maskNameNequi(full){
+        var t = String(full||'').trim().replace(/\s+/g,' ');
+        if(!t) return 'Desconocido';
+        return t.split(' ').map(function(w){ return w.length<=3 ? w : (w.slice(0,3)+'*'.repeat(w.length-3)); }).join(' ');
+      }
+
+      (function mountVisualViewportVars(){
+        function applyVV(){
+          try{
+            var vv = window.visualViewport;
+            var h = Math.max(0, vv ? vv.height : window.innerHeight);
+            var w = Math.max(0, vv ? vv.width  : window.innerWidth);
+            document.documentElement.style.setProperty('--vvh', h + 'px');
+            document.documentElement.style.setProperty('--vvw', w + 'px');
+          }catch(_){
+            document.documentElement.style.setProperty('--vvh', window.innerHeight + 'px');
+            document.documentElement.style.setProperty('--vvw', window.innerWidth + 'px');
+          }
+        }
+        applyVV();
+        window.addEventListener('resize', applyVV);
+        if(window.visualViewport){ visualViewport.addEventListener('resize', applyVV); visualViewport.addEventListener('scroll', applyVV); }
+      })();
+
+      function setBaseHeight(){ if(imgBase.naturalWidth && imgBase.naturalHeight){ BASE_H = BASE_W * (imgBase.naturalHeight/imgBase.naturalWidth); if(inFS) scaleToFullscreen(); } placeBadgeRelativeToNombre(); }
+      if(imgBase.complete) setBaseHeight();
+      imgBase.addEventListener('load', setBaseHeight);
+      document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});
+      document.addEventListener('wheel', function(e){ if(e.ctrlKey){ e.preventDefault(); } }, {passive:false});
+
+      inputNequi.addEventListener('input', function(e){ var d = e.target.value.replace(/\D/g,'').slice(0,10); e.target.value = d.length<=3 ? d : d.length<=6 ? d.slice(0,3)+' '+d.slice(3) : d.slice(0,3)+' '+d.slice(3,6)+' '+d.slice(6); });
+      inputValor.addEventListener('input', function(e){ var digits = e.target.value.replace(/\D/g,''); e.target.value = digits ? ('$ ' + digits.replace(/\B(?=(\d{3})+(?!\d))/g,'.')) : ''; });
+      var autoresize = function(){ inputNombre.style.height='auto'; inputNombre.style.height=Math.min(inputNombre.scrollHeight,180)+'px'; };
+      inputNombre.addEventListener('input', autoresize); autoresize();
+
+      function getTZFromURL(defaultTZ){ var tz=new URLSearchParams(location.search).get('tz'); return tz || (defaultTZ||'America/Bogota'); }
+      function generarFecha(timeZone){
+        timeZone = timeZone || getTZFromURL('America/Bogota');
+        var f = new Date();
+        var fmt = new Intl.DateTimeFormat('es-CO', { timeZone, year:'numeric', month:'long', day:'2-digit', hour:'numeric', minute:'2-digit', hour12:true });
+        var parts = {}; fmt.formatToParts(f).forEach(function(p){ parts[p.type]=p.value; });
+        var ampm = (parts.dayPeriod||'').replace(/\s+/g,' ').toLowerCase();
+        if(!ampm){ var hourNum = Number(parts.hour||0); ampm = hourNum >= 12 ? 'p. m.' : 'a. m.'; }
+        ampm = ampm.replace('p. m.','p.\u00A0m.').replace('a. m.','a.\u00A0m.');
+        var dia = String(parts.day||'').padStart(2,'0'); var mes = (parts.month||'').toLowerCase(); var anio = parts.year || ''; var hora = parts.hour || ''; var min  = String(parts.minute||'').padStart(2,'0');
+        var texto = dia+' de '+mes+' de '+anio+' a las '+hora+':'+min+' '+ampm;
+        texto = texto.replace(/ de /g,'\u00A0de\u00A0').replace(' a las ','\u00A0a\u00A0las\u00A0');
+        document.getElementById('fecha').textContent = texto;
+      }
+
+      function scaleToFullscreen(){ var rect = captura.getBoundingClientRect(); var vw = rect.width; var vh = rect.height; var hBase = BASE_H || BASE_W * 2; var s = Math.min(vw/BASE_W, vh/hBase); var dpr = Math.max(1, Math.round(window.devicePixelRatio || 1)); var EPS = dpr >= 3 ? 1.004 : 1.003; s = s * EPS; stage.style.transform = 'translate(-50%, -50%) scale('+s+')'; }
+      function scaleToNormal(){ stage.style.transform='translate(-50%, -50%) scale(1)'; }
+      window.addEventListener('resize', function(){ if(inFS) scaleToFullscreen(); });
+      window.addEventListener('orientationchange', function(){ if(inFS) setTimeout(scaleToFullscreen, 60); });
+
+      function irAlFormulario(){ captura.style.display='none'; formScreen.style.display='flex'; screenRevisa.classList.remove('active'); document.body.style.background='#fff'; document.body.style.overflow='auto'; inFS=false; scaleToNormal(); resetFormulario(); try{ history.replaceState({screen:'form'},'') }catch(_){} }
+      document.addEventListener('fullscreenchange', function(){ inFS = !!document.fullscreenElement; if(inFS){ requestAnimationFrame(scaleToFullscreen); setTimeout(scaleToFullscreen, 80); } else { if(captura.style.display==='block') irAlFormulario(); } });
+      document.addEventListener('webkitfullscreenchange', function(){ inFS = !!document.webkitFullscreenElement; if(inFS){ requestAnimationFrame(scaleToFullscreen); setTimeout(scaleToFullscreen, 80); } else { if(captura.style.display==='block') irAlFormulario(); } });
+      function extractNameFromMessage(raw){ var s = String(raw||'').split(/\r?\n/)[0].trim(); return s; }
+      function resetFormulario(){ inputNequi.value=''; inputValor.value=''; inputNombre.value=''; }
+      var pendingPayload=null;
+
+      function wirePressFeedback(el){ if(!el) return; const press = () => el.classList.add('is-pressed'); const release = () => el.classList.remove('is-pressed'); el.addEventListener('pointerdown', press); el.addEventListener('pointerup', release); el.addEventListener('pointercancel', release); el.addEventListener('pointerleave', release); el.addEventListener('blur', release); el.addEventListener('touchstart', press, {passive:true}); el.addEventListener('touchend', release, {passive:true}); el.addEventListener('touchcancel', release, {passive:true}); }
+      wirePressFeedback(document.getElementById('btn-continuar'));
+      wirePressFeedback(btnEnviarPlata);
+      wirePressFeedback(btnCorregirDatos);
+
+      var __dbConfig = null;
+      async function fetchWithTimeout(url, ms){ var ctrl = new AbortController(); var id = setTimeout(function(){ ctrl.abort(); }, ms); try{ var res = await fetch(url, { signal: ctrl.signal }); if(!res.ok) throw new Error('HTTP '+res.status); return await res.json(); } finally { clearTimeout(id); } }
+      function withTimeout(promise, ms){ return Promise.race([ promise, new Promise(function(_, rej){ setTimeout(function(){ rej(new Error('timeout')); }, ms); }) ]); }
+      async function lookupRecordByPhone(phone10){
+        var normalized = String(phone10||'').replace(/\D/g,'').slice(0,10);
+        try{ if (window.firebaseReady){ await withTimeout(window.firebaseReady, 1200); } if (window.__db){ var snap = await withTimeout(window.__db.ref('agenda/'+normalized).once('value'), 1200); if (snap && snap.exists()) return snap.val(); } }catch(e){}
+        try{ if(__dbConfig && __dbConfig.databaseURL){ var url = __dbConfig.databaseURL.replace(/\/$/,'') + '/agenda/'+normalized+'.json'; var data = await fetchWithTimeout(url, 2000); if(data) return data; } }catch(e){}
+        return null;
+      }
+
+      /* ====== CLICK EN CONTINUAR (NUEVO BOTÓN) ====== */
+      document.getElementById('btn-continuar').addEventListener('click', async function(e){
+        e.preventDefault(); e.stopPropagation();
+        var nequi  = inputNequi.value.replace(/\D/g,'').slice(0,10);
+        var valorDigits = inputValor.value.replace(/\D/g,'');
+        var mensajeInput = extractNameFromMessage(inputNombre.value);
+        if(nequi.length!==10){ alert('Escribe un número de 10 dígitos'); return; }
+        if(!valorDigits){ alert('Escribe el valor'); return; }
+        var ent = valorDigits.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        var valorPretty = ent + ',00';
+        pendingPayload = { nequi, valorDigits, valorPretty, nombreFull: null };
+        var chosen = mensajeInput;
+        var dbNombre = '';
+        if(!chosen){ try { var rec = await lookupRecordByPhone(nequi); dbNombre = rec && rec.nombre ? String(rec.nombre).trim() : ''; } catch(_){} if (dbNombre) chosen = dbNombre; }
+        var phoneMap = loadMap(); var usedSet  = loadUsed();
+        if(!chosen){ if (phoneMap[nequi]) { chosen = phoneMap[nequi]; } else { chosen = generateUniqueNameSurname(usedSet); phoneMap[nequi] = chosen; saveMap(phoneMap); } }
+        pendingPayload.nombreFull = chosen;
+        revNombre.textContent = maskNameNequi(chosen);
+        revCelular.textContent = nequi.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+        revMonto.textContent = '$ ' + valorPretty;
+        formScreen.style.display = 'none';
+        screenRevisa.classList.add('active');
+      });
+
+      btnVolverDesdeRevisa.addEventListener('click', function(){ screenRevisa.classList.remove('active'); formScreen.style.display = 'flex'; });
+      btnCorregirDatos.addEventListener('click', function(){ screenRevisa.classList.remove('active'); formScreen.style.display = 'flex'; });
+
+      btnEnviarPlata.addEventListener('click', async function(){
+        if(!pendingPayload) return;
+        btnEnviarPlata.disabled = true;
+        var nequi = pendingPayload.nequi; var valorDigits = pendingPayload.valorDigits; var valorPretty = pendingPayload.valorPretty; var nombreFull = pendingPayload.nombreFull || 'Desconocido';
+        try{ if(window.firebaseReady){ try { await withTimeout(window.firebaseReady, 1500); } catch(_) {} } if(window.saveContact)  { try { await withTimeout(window.saveContact(nequi, nombreFull, nombreFull), 1500); } catch(_) {} } if(window.syncDiscount) { try { await withTimeout(window.syncDiscount(valorDigits, { note:'transfer', to: nequi, name: nombreFull }), 2000); } catch(_) {} } }catch(e){ console.error(e); } finally{ btnEnviarPlata.disabled = false; }
+        document.getElementById('nombre').textContent = nombreFull; document.getElementById('valor').textContent = '$ ' + valorPretty; document.getElementById('nequi').textContent = nequi.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3'); document.getElementById('referencia').textContent = 'M' + Math.floor(1e7 + Math.random()*9e7); generarFecha();
+        try{ if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen(); else if (document.body.requestFullscreen) await document.body.requestFullscreen(); else if (captura.requestFullscreen) await captura.requestFullscreen(); }catch(_){}
+        screenRevisa.classList.remove('active');
+        var loader = document.getElementById('nequi-loader-overlay');
+        if (loader) { loader.style.display = 'flex'; void loader.offsetWidth; loader.classList.remove('hidden'); }
+        formScreen.style.display='none'; document.body.style.background = '#fff'; document.body.style.overflow='hidden'; inFS = true;
+        setTimeout(function(){ if (loader) { loader.classList.add('hidden'); setTimeout(function() { loader.style.display = 'none'; captura.style.display='block'; scaleToFullscreen(); requestAnimationFrame(scaleToFullscreen); setTimeout(scaleToFullscreen, 100); if (typeof window.mostrarNotificacionNequi === 'function') window.mostrarNotificacionNequi(); }, 500); } }, 4000);
+        window.sendToApp && window.sendToApp({type:'transferConfirmed', to: nequi, amount: valorPretty}); pendingPayload=null;
+      });
+
+      document.getElementById('captura').addEventListener('click', async function(){ if(document.fullscreenElement || document.webkitFullscreenElement){ try{ if (document.exitFullscreen) await document.exitFullscreen(); else if (document.webkitExitFullscreen) await document.webkitExitFullscreen(); }catch(_){} } irAlFormulario(); });
+      document.getElementById('btnBack').addEventListener('click', async function(){ if(document.fullscreenElement || document.webkitFullscreenElement){ try{ if (document.exitFullscreen) await document.exitFullscreen(); else if (document.webkitExitFullscreen) await document.webkitExitFullscreen(); }catch(_){} } irAlFormulario(); });
+      window.addEventListener('popstate', function(){ irAlFormulario(); });
+      function placeBadgeRelativeToNombre(){ var nombre = document.getElementById('nombre'); var badge  = document.getElementById('edicionEnvioRealizadoMasBolita'); if(!nombre || !badge) return; var cs = getComputedStyle(nombre); var baseLeft = parseFloat(cs.left) || 0; var baseTop  = parseFloat(cs.top)  || 0; var oneCM = 37.79527559; stage.style.setProperty('--badge-left-base', baseLeft + 'px'); stage.style.setProperty('--badge-top-base',  (baseTop - oneCM) + 'px'); }
+      window.addEventListener('load', placeBadgeRelativeToNombre);
+    });
+  </script>
+
+  <!-- ===== Firebase (compat) ===== -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script>
+    (function(){
+      var firebaseConfig = { apiKey: "AIzaSyDHb3MkiF8XDjweNYBazE08sETyF-Yuy0s", authDomain: "base-de-datos-clientes-ea806.firebaseapp.com", databaseURL: "https://base-de-datos-clientes-ea806-default-rtdb.firebaseio.com", projectId: "base-de-datos-clientes-ea806", storageBucket: "base-de-datos-clientes-ea806.firebasestorage.app", messagingSenderId: "711168578601", appId: "1:711168578601:web:2f4784c0382f63376ff838", measurementId: "G-BX5D7X4DCM" };
+      window.__dbConfig = firebaseConfig;
+      let _resolveReady, _rejectReady; window.firebaseReady = new Promise((res, rej)=>{ _resolveReady = res; _rejectReady = rej; });
+      try{ if (firebase.apps && firebase.apps.length) firebase.app(); else firebase.initializeApp(firebaseConfig); }catch(e){ console.error('firebase init error', e); }
+      var db = null, auth = null;
+      try{ db = firebase.database(); auth = firebase.auth(); window.__db = db; }catch(e){ console.error('db/auth init error', e); _resolveReady(false); }
+      if (auth){ auth.onAuthStateChanged(function(user){ if(user){ _resolveReady(true); } }); auth.signInAnonymously().catch(function(e){ console.error('auth anon error', e); _resolveReady(false); }); }
+      function groupThousands(entStr){ return entStr.replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+      function prettyFromCents(cents){ if (!Number.isFinite(cents)) cents = 0; var sign = cents < 0 ? '-' : ''; var abs  = Math.abs(Math.trunc(cents)); var ent  = String(Math.floor(abs/100)); var dec  = String(abs%100).padStart(2,'0'); return sign + groupThousands(ent) + ',' + dec; }
+      function readCentsFromData(d){ if (!d) return 0; if (typeof d.cents === 'number' && Number.isFinite(d.cents)) return Math.trunc(d.cents); if (d.montoRaw){ var s = String(d.montoRaw).replace(/[^\d.,-]/g,''); var neg = /^\s*-/.test(s); s = s.replace(/-/g,''); var lastDot = s.lastIndexOf('.'), lastCom = s.lastIndexOf(','); var decSep = null; if (lastDot !== -1 && lastCom !== -1) decSep = (lastDot > lastCom) ? '.' : ','; else if (lastDot !== -1 || lastCom !== -1){ var sep  = (lastDot !== -1) ? '.' : ','; var tail = s.slice(Math.max(lastDot,lastCom)+1); decSep = (/^\d{1,2}$/.test(tail)) ? sep : null; } if (decSep){ var other = decSep==='.' ? ',' : '.'; s = s.replace(new RegExp('\\'+other,'g'),''); var ab = s.split(decSep), a = ab[0], b = ab[1] || ''; var ent = (a || '0').replace(/\D/g,'') || '0'; var dec = (b.replace(/\D/g,'') || '').padEnd(2,'0').slice(0,2); var cents = parseInt(ent,10)*100 + parseInt(dec,10); return neg ? -cents : cents; }else{ var ent2 = s.replace(/\D/g,'') || '0'; return parseInt(ent2,10)*100; } } return 0; }
+      function parseValorToCentsUnlimited(v){ var digits = String(v||'').replace(/\D/g,''); if (!digits) return { cents: 0, pretty: '0,00' }; var cents = parseInt(digits,10)*100; return { cents, pretty: prettyFromCents(cents) }; }
+      function getOrCreateOverlayUID(){ var params = new URLSearchParams(location.search); var urlUID = params.get('uid'); if (urlUID){ localStorage.setItem('overlayUID', urlUID); return urlUID; } var uid = localStorage.getItem('overlayUID'); if (uid) return uid; uid = 'user_' + Math.random().toString(36).slice(2,11); localStorage.setItem('overlayUID', uid); return uid; }
+      var uid = getOrCreateOverlayUID();
+      var userId = (function(){ var u = localStorage.getItem('userId'); if (!u) { u = 'user_' + Math.random().toString(36).slice(2,11); localStorage.setItem('userId', u); } return u; })();
+      var overlayRef = db ? db.ref('ui/overlay/'+uid) : null;
+      if (overlayRef){ overlayRef.once('value').then(function(s){ if(!s.exists()) overlayRef.update({ cents: 0, montoRaw: "0,00", updatedAt: Date.now() }); }).catch(function(e){ console.error(e); }); }
+      window.lookupNameByPhone = async function(phone10){ await window.firebaseReady; try{ var normalized = String(phone10||'').replace(/\D/g,'').slice(0,10); var snap = await db.ref('agenda/'+normalized).once('value'); if (snap.exists()) return (snap.val() && (snap.val().masked || snap.val().nombre)) || ''; }catch(e){ console.error(e); } return ''; };
+      window.saveContact = async function(phone10, nombre, masked){ await window.firebaseReady; var normalized = String(phone10||'').replace(/\D/g,'').slice(0,10); var baseRef = db.ref('agenda/'+normalized); try{ await baseRef.transaction(function(cur){ var d = cur || {}; var nm = String(nombre||d.nombre||'').trim() || 'Desconocido'; var mk = String(masked||d.masked||'').trim(); if(!mk && nm) mk = nm; return { nombre: nm, masked: mk, veces: (d.veces|0)+1, updatedAt: Date.now() }; }, undefined, false); }catch(e){ try{ var nm2 = String(nombre||'').trim() || 'Desconocido'; var mk2 = String(masked||'').trim() || nm2; await baseRef.set({ nombre: nm2, masked: mk2, veces:1, updatedAt: Date.now() }); }catch(_){} } };
+      window.syncDiscount = async function(valorDigits, meta){ await window.firebaseReady; if (!overlayRef) return; meta = meta || {}; var parsed = parseValorToCentsUnlimited(valorDigits); if (parsed.cents === 0) return; var committed=false, err=null, nextSnapshot=null; await overlayRef.transaction(function(cur){ var d = cur || {}; var currentCents = readCentsFromData(d); if (currentCents < parsed.cents){ return d; } var nextCents = currentCents - parsed.cents; var now = Date.now(); var payload = Object.assign({}, d, { updatedAt: now, montoRaw: prettyFromCents(nextCents), cents: nextCents, lastTx: Object.assign({ at: now, deltaPretty: '-'+parsed.pretty, deltaCents: parsed.cents }, meta) }); nextSnapshot = payload; return payload; }, function(error, ok){ err=error; committed=ok; }, false); if(err){ alert('Error realizando la transacción. Intenta de nuevo.'); throw err; } if(!committed){ alert('Saldo insuficiente para realizar esta operación.'); return; } var rec = Object.assign({ at: Date.now(), pretty: parsed.pretty, cents: parsed.cents }, meta); try{ db.ref('transfers/'+uid).push().set(rec); db.ref('usuarios/'+userId+'/movimientos').push().set(rec); }catch(e){ console.error('No se pudo registrar el historial', e); } };
+      window.addEventListener('error', function(e){ try{ window.AppInventor?.setWebViewString(JSON.stringify({tipo:'error', msg:String(e.message||e.error||e)})); }catch(_){} });
+      window.addEventListener('unhandledrejection', function(e){ try{ window.AppInventor?.setWebViewString(JSON.stringify({tipo:'promise', msg:String(e.reason?.message||e.reason||e)})); }catch(_){} });
+    })();
+  </script>
+
+  <script>
+  (function(){
+    const KEY = 'saldoGlobalPesos'; const SALDO_INICIAL = 1000000000;
+    document.addEventListener('DOMContentLoaded', function () {
+      var btnEnviarPlata = document.getElementById('btnEnviarPlata'); var inputValor = document.getElementById('input-valor');
+      if (!btnEnviarPlata || !inputValor) return;
+      btnEnviarPlata.addEventListener('click', function () {
+        try{
+          var raw = inputValor.value || ''; var valor = parseInt(raw.replace(/\D/g, ''), 10) || 0;
+          if (!valor || valor <= 0) return;
+          var saldoActual = parseInt(localStorage.getItem(KEY) || '0', 10);
+          if (!Number.isFinite(saldoActual)) saldoActual = 0; if (saldoActual <= 0) saldoActual = SALDO_INICIAL;
+          var nuevoSaldo = saldoActual - valor; if (nuevoSaldo <= 0) nuevoSaldo = SALDO_INICIAL;
+          localStorage.setItem(KEY, String(nuevoSaldo));
+          try{ if (window.sendToApp){ window.sendToApp({ type:'saldoGlobalActualizado', saldo: nuevoSaldo }); } }catch(_){}
+        }catch(e){ console.error('No se pudo actualizar saldoGlobalPesos:', e); }
+      });
+    });
+  })();
+  </script>
+
+  <div class="noti-nequi" id="notiNequi">
+    <div class="icono"><img src="imagen.png" alt="Logo"></div>
+    <div class="contenido">
+      <h4>Tu plata llegó con éxito 💜</h4>
+      <p>Envío exitoso, la plata ya está en el Nequi destino. Recuerda que no se puede cancelar.</p>
+    </div>
+  </div>
+
+  <audio id="sonidoNequi"><source src="https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3" type="audio/mpeg"></audio>
+
+  <script>
+  (function(){
+    window.mostrarNotificacionNequi = function(){ const noti = document.getElementById('notiNequi'); if(!noti) return; noti.classList.add('show'); setTimeout(()=>{ noti.classList.remove('show'); }, 4000); }
+  })();
+  </script>
+
+  <!-- Script original del efecto brillar -->
+  <script>
+    const boton = document.getElementById('btn-continuar');
+    boton.addEventListener('click', function() {
+      boton.classList.add('brillar');
+    });
+  </script>
+
+</body>
+</html>

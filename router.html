@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Router</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="color-scheme" content="light dark">
+  <style>
+    html,body{margin:0;height:100%;background:#000;display:flex;align-items:center;justify-content:center}
+    .dot{width:10px;height:10px;border-radius:50%;background:#7c3aed;animation:p .9s infinite alternate}
+    @keyframes p{to{transform:scale(1.4);opacity:.7}}
+  </style>
+</head>
+<body>
+  <div class="dot" aria-hidden="true"></div>
+  <script>
+    (function(){
+      const p = new URLSearchParams(location.search);
+      const stage = p.get('stage');                         // "return" | null
+      const back  = p.get('back') || 'index2.html';         // destino al pulsar Atrás
+      const to    = p.get('to');                            // destino de navegación
+
+      if (stage === 'return') {
+        // Vuelta con botón Atrás => regresar al principal
+        try { location.replace(back); } catch(_) { location.href = back; }
+        return;
+      }
+
+      // Preparar este mismo router para el regreso
+      const ret = 'router.html?stage=return&back=' + encodeURIComponent(back);
+      try { history.replaceState({stage:'return'}, '', ret); } catch(_){ location.replace(ret); return; }
+
+      // Ir al destino real (y crear entrada de historial)
+      const dest = to || back;
+      try { location.assign(dest); } catch(_) { location.href = dest; }
+    })();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Agenda + Enviar (Local DB WebView)</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root{ --bg:#ffffff; --ink:#200020; --muted:#6b6b6b; --suave:#f5e9f6; --brand:#ff0a8c }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee}
+  .tabs{display:flex;gap:8px}
+  .tab{padding:10px 14px;border-radius:10px;background:#f4f4f4;font-weight:600;cursor:pointer;border:1px solid #eee}
+  .tab.active{background:#ffe5f3;border-color:#ffd0ea;color:#b10069}
+  .container{max-width:520px;margin:0 auto;padding:16px}
+  h1{font-size:22px;margin:0 0 8px}
+  .label{font-size:13px;color:#5a4f5a;margin:12px 2px 6px}
+  .input-wrap{display:flex;align-items:center;gap:8px;background:var(--suave);border-radius:12px;padding:12px}
+  input,textarea{border:none;outline:none;background:transparent;width:100%;font-size:16px}
+  .btn{width:100%;padding:14px;border:none;border-radius:12px;background:var(--brand);color:#fff;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 10px 22px rgba(255,10,140,.25)}
+  .card{background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:14px}
+  .row{margin:12px 0}
+  .muted{color:var(--muted);font-size:13px}
+  .grid{display:grid;grid-template-columns:1fr;gap:12px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pill{display:inline-block;background:#eee;border-radius:999px;padding:4px 10px;font-size:12px}
+  .ok{color:#0a8f37}
+  .warn{color:#b10069}
+  .section{display:none}
+  .section.active{display:block}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,"Courier New",monospace;font-size:12px}
+  .mini-btn{padding:8px 10px;border:1px solid #ddd;border-radius:10px;background:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+  <header>
+    <strong>Base local (WebView)</strong>
+    <div class="tabs">
+      <button class="tab active" data-go="reg">Registrar</button>
+      <button class="tab" data-go="send">Enviar</button>
+      <button class="tab" data-go="io">Exportar/Importar</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- REGISTRAR -->
+    <section id="sec-reg" class="section active">
+      <h1>Registrar contacto</h1>
+      <div class="label">Nombre completo</div>
+      <div class="input-wrap"><input id="reg-nombre" placeholder="Ej: CARLOS PEREZ"></div>
+
+      <div class="label">Celular (10 dígitos)</div>
+      <div class="input-wrap"><input id="reg-cel" inputmode="numeric" maxlength="14" placeholder="300 123 4567"></div>
+
+      <div class="row card">
+        <div class="muted">Previsualización enmascarada (como se guardará para mostrar):</div>
+        <div id="prev-mask" style="margin-top:6px;font-weight:800;font-size:18px">—</div>
+      </div>
+
+      <div class="row"><button id="btn-guardar" class="btn">Guardar contacto</button></div>
+      <div class="muted">TIP: Puedes registrar muchos números. Luego, en “Enviar”, al poner el número aparecerá el nombre enmascarado tal como quedó guardado.</div>
+    </section>
+
+    <!-- ENVIAR -->
+    <section id="sec-send" class="section">
+      <h1>Enviar plata</h1>
+      <div class="label">Celular</div>
+      <div class="input-wrap"><input id="send-cel" inputmode="numeric" maxlength="14" placeholder="300 123 4567"></div>
+
+      <div class="label">¿Cuánto?</div>
+      <div class="input-wrap"><input id="send-valor" inputmode="numeric" placeholder="Ej: 55000"></div>
+
+      <div class="row card">
+        <div class="grid">
+          <div><span class="pill">Vas a enviar a</span><br><strong id="viz-nombre">—</strong></div>
+          <div class="two">
+            <div>Número:<br><strong id="viz-cel" class="mono">—</strong></div>
+            <div>Monto:<br><strong id="viz-valor" class="mono">—</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row"><button id="btn-confirmar" class="btn">Confirmar</button></div>
+      <div id="send-msg" class="muted"></div>
+    </section>
+
+    <!-- EXPORTAR / IMPORTAR -->
+    <section id="sec-io" class="section">
+      <h1>Exportar / Importar</h1>
+      <div class="row card">
+        <div class="two">
+          <button id="btn-export" class="mini-btn">Exportar JSON</button>
+          <button id="btn-clear" class="mini-btn" style="color:#b10069;border-color:#ffc0de;background:#fff0f7">Borrar todo</button>
+        </div>
+        <div class="row">
+          <textarea id="io-text" class="mono" rows="8" style="width:100%" placeholder='Pega aquí el JSON para importar o verás el resultado de la exportación'></textarea>
+        </div>
+        <div class="row"><button id="btn-import" class="mini-btn">Importar JSON</button></div>
+        <div class="muted">Estructura: {"3001234567":{"nombre":"CARLOS PEREZ","masked":"CAR*** PER**"}}</div>
+      </div>
+    </section>
+
+  </div>
+
+<script>
+/* ============ Utilidades de UI ============ */
+const $ = (s)=>document.querySelector(s);
+const $$ = (s)=>document.querySelectorAll(s);
+$$('.tab').forEach(b=>{
+  b.addEventListener('click',()=>{
+    $$('.tab').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const id=b.dataset.go;
+    $$('.section').forEach(s=>s.classList.remove('active'));
+    if(id==='reg') $('#sec-reg').classList.add('active');
+    if(id==='send') $('#sec-send').classList.add('active');
+    if(id==='io') $('#sec-io').classList.add('active');
+  });
+});
+
+/* ============ DB local (LocalStorage) ============ */
+const DB_KEY = 'agenda_local_v1';
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(_){ return {}; }
+}
+function saveDB(db){
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+/* ============ Formatos ============ */
+function normPhone(v){
+  const d = String(v||'').replace(/\D/g,'');
+  return d.slice(-10); // últimos 10 (soporta +57, espacios, etc.)
+}
+function fmtPhone10(d){
+  if(d.length!==10) return d;
+  return d.slice(0,3)+' '+d.slice(3,6)+' '+d.slice(6);
+}
+function fmtMoneyDigits(v){
+  const d = String(v||'').replace(/\D/g,'');
+  if(!d) return '';
+  return d.replace(/\B(?=(\d{3})+(?!\d))/g,'.') + ',00';
+}
+function maskName(full){
+  const t = String(full||'').trim().replace(/\s+/g,' ');
+  if(!t) return 'Desconocido';
+  return t.split(' ').map(w=> w.length<=3 ? w : (w.slice(0,3)+'*'.repeat(w.length-3))).join(' ');
+}
+
+/* ============ Registrar ============ */
+const iNombre = $('#reg-nombre');
+const iCel    = $('#reg-cel');
+const prev    = $('#prev-mask');
+
+function updatePreview(){
+  const m = maskName(iNombre.value);
+  prev.textContent = m || '—';
+}
+iNombre.addEventListener('input', updatePreview);
+updatePreview();
+
+iCel.addEventListener('input', (e)=>{
+  const d = normPhone(e.target.value);
+  e.target.value = d ? fmtPhone10(d) : '';
+});
+
+$('#btn-guardar').addEventListener('click', ()=>{
+  const tel = normPhone(iCel.value);
+  const name = String(iNombre.value||'').trim();
+  if(tel.length!==10){ alert('Escribe un número de 10 dígitos'); return; }
+  if(!name){ alert('Escribe el nombre completo'); return; }
+
+  const db = loadDB();
+  db[tel] = { nombre: name, masked: maskName(name) }; // guardamos ambos
+  saveDB(db);
+
+  iNombre.value = ''; iCel.value = ''; updatePreview();
+  alert('Contacto guardado ✓');
+});
+
+/* ============ Enviar ============ */
+const sCel   = $('#send-cel');
+const sVal   = $('#send-valor');
+const vNom   = $('#viz-nombre');
+const vCel   = $('#viz-cel');
+const vVal   = $('#viz-valor');
+const sMsg   = $('#send-msg');
+
+sCel.addEventListener('input',(e)=>{
+  const d = normPhone(e.target.value);
+  e.target.value = d ? fmtPhone10(d) : '';
+  fillVisualization();
+});
+sVal.addEventListener('input',(e)=>{
+  const pretty = fmtMoneyDigits(e.target.value);
+  vVal.textContent = pretty || '—';
+});
+
+function fillVisualization(){
+  const tel = normPhone(sCel.value);
+  const db = loadDB();
+  const rec = tel && db[tel] ? db[tel] : null;
+  vNom.textContent = rec ? rec.masked : 'Desconocido';
+  vCel.textContent = tel ? fmtPhone10(tel) : '—';
+  // vVal se llena en input de valor
+}
+
+$('#btn-confirmar').addEventListener('click', ()=>{
+  const tel = normPhone(sCel.value);
+  const valDigits = String(sVal.value||'').replace(/\D/g,'');
+  if(tel.length!==10){ alert('Escribe un número de 10 dígitos'); return; }
+  if(!valDigits){ alert('Escribe el valor'); return; }
+
+  const db = loadDB();
+  const rec = db[tel];
+  const masked = rec ? rec.masked : 'Desconocido';
+  const pretty = fmtMoneyDigits(valDigits);
+
+  // Aquí harías lo que necesites: notificar a App Inventor, mostrar comprobante, etc.
+  sMsg.innerHTML = `<span class="ok">Transferencia lista para ${masked}</span> — <span class="mono">${fmtPhone10(tel)}</span> por <span class="mono">${pretty}</span>.`;
+});
+
+/* ============ Exportar / Importar ============ */
+$('#btn-export').addEventListener('click', ()=>{
+  $('#io-text').value = JSON.stringify(loadDB(), null, 2);
+});
+$('#btn-import').addEventListener('click', ()=>{
+  try{
+    const obj = JSON.parse($('#io-text').value || '{}');
+    // Validación mínima: claves = teléfonos, cada valor con {nombre, masked}
+    const valid = {};
+    Object.keys(obj||{}).forEach(k=>{
+      const tel = normPhone(k);
+      if(tel.length===10 && obj[k] && typeof obj[k].nombre==='string'){
+        // Si no viene masked, lo generamos a partir de nombre
+        valid[tel] = { nombre: obj[k].nombre.trim(), masked: (obj[k].masked||maskName(obj[k].nombre)).trim() };
+      }
+    });
+    saveDB(valid);
+    alert('Importado ✓');
+  }catch(e){
+    alert('JSON inválido');
+  }
+});
+$('#btn-clear').addEventListener('click', ()=>{
+  if(confirm('¿Borrar toda la base local?')){ saveDB({}); $('#io-text').value=''; alert('Limpio ✓'); }
+});
+</script>
+</body>
+</html>

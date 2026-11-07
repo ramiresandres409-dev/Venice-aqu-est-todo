@@ -1,0 +1,1098 @@
+/* Importar fuente Manrope desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
+
+/* Fuentes - usando Manrope como fuente principal */
+
+:root {
+    --gray-8000: #1a1a1a;
+    --gray-800: #2d2d2d;
+    --gray-500: #646464;
+    --gray-400: #9e9e9e;
+    --gray-300: #d0d0d0;
+    --gray-100: #f5f5f5;
+    --input-background: #f8f8f8;
+    --guanabana: #f0f0f0;
+    --orquidea: #9b59b6;
+    --uva: #200020;
+    --white: #ffffff;
+    --positive: #11da7a;
+    --positive-30: rgba(17, 218, 122, 0.3);
+    --error: #e74c3c;
+    --nequi-pink: #DA0081;
+    --nequi-purple: #200020;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #FCF7FB;
+    padding: 0 clamp(4px, 1vw, 8px) clamp(4px, 1vw, 8px);
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    display: block;
+    position: relative;
+}
+
+/* ============================================
+   HEADER SUPERIOR - Detalle del movimiento
+   ============================================ */
+.top-header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: #FCF7FB;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.top-header__left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.top-header__back-arrow {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--uva);
+    transition: opacity 0.2s ease;
+}
+
+.top-header__back-arrow:hover {
+    opacity: 0.7;
+}
+
+.top-header__back-arrow svg {
+    width: 22px;
+    height: 22px;
+}
+
+.top-header__title {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--uva);
+    font-family: 'Manrope', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-header__right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.top-header__icon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--uva);
+    transition: opacity 0.2s ease;
+}
+
+.top-header__icon:hover {
+    opacity: 0.7;
+}
+
+.top-header__icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* ============================================
+   FIN HEADER SUPERIOR
+   ============================================ */
+
+/* Estilos para caso específico: isbancolombia con ismovement false e isshared false */
+body.bancolombia-simple {
+    background-color: #ece7f5;
+}
+
+body.bancolombia-simple .receipt-container__content-base::before,
+body.bancolombia-simple .receipt-container__content-base::after {
+    background-color: #ece7f5;
+}
+
+/* Asegurar que todos los campos estén visibles para bancolombia-simple */
+body.bancolombia-simple .labeled-value,
+body.bancolombia-simple #bancolombia-section {
+    display: block !important;
+}
+
+/* Ocultar la línea punteada (body--title) para bancolombia-simple, como en bc_lg.html */
+body.bancolombia-simple .receipt-content__body--title {
+    display: none !important;
+}
+
+/* Estilos del header igual que bc_lg.html para bancolombia-simple */
+body.bancolombia-simple .receipt-content__header {
+    text-align: center;
+    justify-content: center;
+    padding-left: 0;
+    padding-top: calc(0.8em - 0.6em);
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+body.bancolombia-simple .receipt-content__header--image {
+    padding: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+body.bancolombia-simple .detail-title {
+    justify-content: center;
+    width: 100%;
+}
+
+body.bancolombia-simple .detail-title__icon {
+    width: 28px;
+    height: 28px;
+    margin-right: 0px;
+    transform: none;
+}
+
+body.bancolombia-simple .detail-title__label {
+    font-size: 18px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 400;
+    color: #200020;
+}
+
+/* Ocultar numeronequi-section para bancolombia-simple */
+body.bancolombia-simple #numeronequi-section {
+    display: none !important;
+}
+
+/* Reducir margin-top del QR para bancolombia-simple, como en bc_lg.html */
+body.bancolombia-simple .qr-container {
+    margin-top: 0px;
+}
+
+/* Reducir padding-top del body para acercar el header al QR, igual que en bc_lg.html */
+body.bancolombia-simple .receipt-content__body {
+    padding-top: 0px;
+}
+
+/* Reducir margin-top del contenedor de animación QR para bancolombia-simple, igual que en bc_lg.css */
+body.bancolombia-simple .check--container--qr__animation {
+    margin: 0.5em auto 0;
+}
+
+.loading-spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner__circle {
+    width: 28px;
+    height: 28px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--nequi-pink);
+    border-radius: 60%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.login-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #FCF7FB 0%, #F5F0F5 100%);
+    z-index: 10000;
+    padding: 20px;
+}
+
+.login-content {
+    width: 100%;
+    max-width: 400px;
+    background: var(--white);
+    border-radius: 24px;
+    padding: 40px 24px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.login-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.login-logo svg {
+    width: 80px;
+    height: 80px;
+}
+
+.login-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--nequi-purple);
+    margin: 0 0 8px 0;
+    font-family: 'Manrope', sans-serif;
+}
+
+.login-subtitle {
+    font-size: 16px;
+    color: var(--gray-500);
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+}
+
+.login-form {
+    width: 100%;
+}
+
+.login-input-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.login-input-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-800);
+    margin-bottom: 8px;
+    font-family: 'Manrope', sans-serif;
+}
+
+.login-input-group input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 2px solid var(--gray-300);
+    border-radius: 12px;
+    background-color: var(--input-background);
+    color: var(--gray-800);
+    font-family: 'Manrope', sans-serif;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.login-input-group input:focus {
+    outline: none;
+    border-color: var(--nequi-pink);
+    background-color: var(--white);
+    box-shadow: 0 0 0 3px rgba(218, 0, 129, 0.1);
+}
+
+.login-input-group.focused label {
+    color: var(--nequi-pink);
+}
+
+.login-input-group input::placeholder {
+    color: var(--gray-400);
+}
+
+.login-button {
+    width: 100%;
+    padding: 16px;
+    margin-top: 8px;
+    background: linear-gradient(135deg, var(--nequi-pink) 0%, #C60071 100%);
+    border: none;
+    border-radius: 12px;
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Manrope', sans-serif;
+    box-shadow: 0 4px 12px rgba(218, 0, 129, 0.3);
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(218, 0, 129, 0.4);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+.login-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.login-footer {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.login-link {
+    font-size: 14px;
+    color: var(--nequi-pink);
+    text-decoration: none;
+    font-weight: 500;
+    font-family: 'Manrope', sans-serif;
+    transition: color 0.3s ease;
+}
+
+.login-link:hover {
+    color: #C60071;
+    text-decoration: underline;
+}
+
+.login-link:active {
+    color: #B2005F;
+}
+
+.page-container {
+    width: calc(100% - 2 * clamp(4px, 1vw, 8px));
+    max-width: none;
+    margin: 0 auto 24px;
+    padding-top: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.receipt-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.receipt-container__title {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 2px dotted var(--gray-300);
+}
+
+.receipt-container__content-base {
+    color: var(--gray-8000);
+    padding-top: 30px;
+    padding-bottom: 10px;
+    background: url("voucher-background.svg") white no-repeat center center/100%;
+    background-size: cover;
+    width: 100%;
+    height: 95%;
+    position: relative;
+}
+
+.receipt-container__content-base::before {
+    content: "";
+    position: absolute;
+    width: 2.3em;
+    height: 2.3em;
+    background-color: #FCF7FB;
+    border-radius: 100%;
+    left: -1.4em;
+    top: 8%;
+    display: block !important;
+}
+
+.receipt-container__content-base::after {
+    content: "";
+    position: absolute;
+    width: 2.3em;
+    height: 2.3em;
+    background-color: #FCF7FB;
+    border-radius: 100%;
+    right: -1.4em;
+    top: 8%;
+    display: block !important;
+}
+
+.receipt-container__zig-zag-up {
+    background: url("triangle-zig-zag.svg");
+    background-repeat: repeat-x;
+    background-size: 5% auto;
+    background-position: top left;
+    height: 15px;
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    transform: rotate(180deg);
+    margin-top: -1px;
+}
+
+.receipt-container__zig-zag-down {
+    background: url("triangle-zig-zag.svg");
+    background-repeat: repeat-x;
+    background-size: 5% auto;
+    background-position: top left;
+    height: 15px;
+    margin-top: -1px;
+}
+
+.receipt-container .receipt-content {
+    background: none;
+    height: 98%;
+    width: 100%;
+    padding: 0 clamp(5px, 4vw, 5px);
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.receipt-container .receipt-content.isshared {
+    position: relative;
+    min-height: 98%;
+}
+
+.receipt-container .receipt-content.isshared::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 20px;
+    height: 134px;
+    background-image: url("regulatory-body.svg");
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    background-size: auto;
+    opacity: 0.7;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.receipt-container .receipt-content.isshared .receipt-content__body--title {
+    margin-top: 0;
+}
+
+.receipt-container .receipt-content.isshared .receipt-content__header {
+    margin-bottom: -20px !important;
+}
+
+.receipt-container .receipt-content.isshared .labeled-value__label {
+    margin-top: 8px !important;
+}
+
+.receipt-container .receipt-content.isshared .qr__container {
+    width: 7.1em !important;
+    height: 7.0em !important;
+}
+
+.receipt-container .receipt-content.isshared .check--container--qr__animation {
+    width: 8.1em !important;
+    height: 7.9em !important;
+    padding-bottom: 1.2em !important;
+    padding-top: 0.31em !important;
+    align-items: flex-start !important;
+}
+
+.receipt-container .receipt-content.isshared .receipt-content__body {
+    margin-top: 20px !important;
+}
+
+.receipt-container .receipt-content.isshared #texto-section {
+    display: none !important;
+}
+
+.receipt-container .receipt-content__header {
+    text-align: left;
+    font-size: 13px;
+    padding-left: 10px;
+    padding-top: 0;
+    flex-shrink: 0;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    min-height: 1.65em;
+    padding-top: calc(1.65em - 0.6em);
+}
+
+.receipt-container .receipt-content__header--image {
+    padding: 3px;
+}
+
+.receipt-container .receipt-content__body {
+    padding: 5px 15px 0px 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.receipt-container .receipt-content__body--title {
+    padding-bottom: 10px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    border-bottom: 2px dotted var(--gray-300);
+    flex-shrink: 0;
+    margin-top: calc(0.6em - 0.5em);
+}
+
+.receipt-container .receipt-content__body--title h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-8000);
+}
+
+.qr-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-top: 0px;
+    margin-bottom: 15px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.qr__container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 8em;
+    height: 8em;
+    padding: 0;
+    margin: 0;
+    background-color: var(--white);
+    border-radius: 4px;
+    position: relative;
+}
+
+.qr__img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#qr-code {
+    padding: 0.3em;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+.receipt-container .receipt-content.isshared #qr-code {
+    padding: 0.0em;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+.qr__logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2.4em;
+    height: 2.4em;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.qr__logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.check--container--qr__animation {
+    width: 8.5em;
+    height: 8.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5em auto 0;
+    background-color: var(--positive-30);
+    border-radius: 0.25em;
+    position: relative;
+}
+
+.qr-instruction {
+    margin-top: 5px;
+    padding: 0 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    color: var(--nequi-purple);
+    line-height: 1.2;
+}
+
+.qr-instruction__icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.qr-instruction__text {
+    text-align: left;
+}
+
+.receipt-container .receipt-content__footer {
+    padding: 5px 20px 10px 30px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.receipt-container .receipt-content__footer--ach {
+    color: var(--orquidea);
+}
+
+.detail-title {
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.detail-title__icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 4px;
+    transform: rotate(180deg);
+}
+
+.detail-title__label {
+    font-size: 18px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 400;
+    color: #ff4961;
+}
+
+.labeled-value {
+    margin-top: -2px;
+}
+
+.labeled-value__label {
+    display: block;
+    font-size: 14px;
+    color: var(--gray-500);
+    font-family: 'Manrope', sans-serif;
+    margin-top: 16px;
+}
+
+.labeled-value__value {
+    color: var(--uva);
+    font-family: 'Manrope', sans-serif;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Evitar salto de línea en el valor de "Para" o "Pago en" - cortar sin puntos suspensivos */
+#recipient-value {
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    max-width: 100%;
+}
+
+#conversation-section {
+    margin-inline-end: 25px;
+}
+
+.message-container {
+    background-color: #FCF7FB;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+}
+
+.message-container span {
+    color: var(--gray-800);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    display: block;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.check--container {
+    width: 7.813em;
+    height: 9.063em;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.check--container__animation {
+    width: 7.5em;
+    height: 7.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.check--container__check-box {
+    height: 5.5em;
+    width: 5.5em;
+    background-color: var(--positive);
+    border-radius: 0.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+}
+
+.check--container__check-box__check-mark {
+    height: 3.4em;
+    width: 3.8em;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url("movements-check-mark.svg");
+    border-radius: 0.5em;
+}
+
+.check--container__text {
+    font-size: 1.125em;
+    font-weight: 700;
+    line-height: 1.537em;
+    text-align: center;
+    margin-top: 10px;
+    color: var(--gray-8000);
+}
+
+.button-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25px;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.button-listo {
+    background-color: var(--nequi-pink);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 13px 40px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: none;
+    width: 90%;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.button-listo:hover {
+    background-color: var(--nequi-pink);
+}
+
+.button-listo:active {
+    background-color: #B8006A;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.button-listo:focus {
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.problem-text {
+    color: var(--nequi-pink);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+    text-decoration: underline;
+    cursor: default;
+    margin-top: 8px;
+    margin-bottom: 25px;
+    padding: 0 6px;
+    box-sizing: border-box;
+    word-break: keep-all;
+    hyphens: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px 6px;
+    }
+    
+    .page-container {
+        width: calc(100% - 12px);
+        max-width: none;
+    }
+    
+    .receipt-container__content-base::before,
+    .receipt-container__content-base::after {
+        display: block !important;
+    }
+
+    .top-header {
+        padding: 10px 12px;
+    }
+
+    .top-header__title {
+        font-size: 16px;
+    }
+}
+
+/* Estilos específicos para problem_movement.html */
+.problem-description {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.problem-reasons {
+    margin-bottom: 24px;
+}
+
+.reason-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 12px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+}
+
+.reason-icon {
+    font-size: 20px;
+    margin-right: 12px;
+    min-width: 24px;
+}
+
+.reason-text {
+    color: #333;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.action-message {
+    background-color: #e8f4fd;
+    border: 1px solid #c2e7ff;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.action-message p {
+    color: #0066cc;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.button-retry,
+.button-support {
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+}
+
+.button-retry {
+    background-color: #2fdf75;
+    color: white;
+}
+
+.button-retry:hover {
+    background-color: #28c66a;
+}
+
+.button-retry:active {
+    background-color: #25b35e;
+}
+
+.button-support {
+    background-color: #ffffff;
+    color: #0066cc;
+    border: 2px solid #0066cc;
+}
+
+.button-support:hover {
+    background-color: #f0f8ff;
+}
+
+.button-support:active {
+    background-color: #e0f0ff;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+@media (min-width: 768px) {
+    body {
+        padding: 8px;
+    }
+
+    .page-container {
+        width: calc(100% - 16px);
+        max-width: none;
+    }
+
+    .button-container {
+        flex-direction: row;
+        gap: 12px;
+    }
+
+    .button-retry,
+    .button-support {
+        flex: 1;
+        margin-bottom: 0;
+    }
+}
+/* ============================================
+   HEADER SUPERIOR (Estilo Nequi - ? Ajustado)
+   ============================================ */
+
+/* 1. Espacio para el header */
+.page-container {
+    position: relative;
+    padding-top: 30px !important;
+}
+
+/* 2. Barra, Flecha y Texto (Izquierda) */
+.page-container::before {
+    content: "Detalle del movimiento";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background-color: #FCF7FB;
+    display: flex;
+    align-items: center;
+    
+    /* Flecha negra */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5'/%3E%3Cpath d='M12 19l-7-7 7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    
+    padding-left: 40px;
+    box-sizing: border-box;
+    font-family: 'Manrope', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #000000;
+    z-index: 1000;
+}
+
+/* 3. Iconos Derecha: ? un poco más pequeño y gruesito + Compartir */
+.page-container::after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    width: 80px;
+    height: 30px;
+    
+    /* SVG: ? más compacto y con trazo un poco más grueso (2.0) + Compartir igual */
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='30'%20viewBox='0%200%2080%2030'%20fill='none'%3E%3Cg%20stroke='%23000000'%20stroke-width='2.0'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M12%207%20C12%204,%2018%204,%2018%208.5%20C18%2012.5,%2014%2013.5,%2014%2017'/%3E%3Ccircle%20cx='14'%20cy='21'%20r='1.5'%20fill='%23000000'%20stroke='none'/%3E%3C/g%3E%3Cg%20stroke='%23000000'%20stroke-width='1.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='58'%20cy='6'%20r='2.5'/%3E%3Ccircle%20cx='46'%20cy='15'%20r='2.5'/%3E%3Ccircle%20cx='58'%20cy='24'%20r='2.5'/%3E%3Cline%20x1='48.5'%20y1='13'%20x2='55.5'%20y2='8'/%3E%3Cline%20x1='48.5'%20y1='17'%20x2='55.5'%20y2='22'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right center;
+    z-index: 1001;
+}
+
+/* Ajuste para modo bancolombia-simple */
+body.bancolombia-simple .page-container::before {
+    background-color: #ece7f5 !important;
+}
