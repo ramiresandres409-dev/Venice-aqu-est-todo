@@ -1,39 +1,1623 @@
-<!--
-         Licensed to the Apache Software Foundation (ASF) under one
-         or more contributor license agreements.  See the NOTICE file
-         distributed with this work for additional information
-         regarding copyright ownership.  The ASF licenses this file
-         to you under the Apache License, Version 2.0 (the
-         "License"); you may not use this file except in compliance
-         with the License.  You may obtain a copy of the License at
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Visor con SVG (Firebase / AppInventor Ready)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --monto-font: 22px;
+      --sign-scale: 0.96;
+      --dec-scale: 0.90;
+      --total-font: 12px;
+      --app-vh: 100vh;
+      --hi-azul: rgba(135,206,250,.9);
+      --hi-azul-soft: rgba(135,206,250,.35);
+    }
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: rgba(0,0,0,0); }
+    html,body{ height:100%; margin:0; }
+    body{
+      height:100%;
+      display:flex; align-items:center; justify-content:center;
+      background:#000; font-family:'Manrope', system-ui, sans-serif;
+      overflow:hidden;
+      -webkit-user-select:none; user-select:none;
+    }
+    a, a:link, a:active, a:visited, button, svg a, rect, foreignObject, .btn{
+      -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+      outline: none !important;
+    }
+    .frame{ position:fixed; inset:0; width:100vw; height:var(--app-vh); background:#000; z-index:1; }
+    .frame.fs{ position:fixed !important; inset:0 !important; width:100vw !important; height:var(--app-vh) !important; background:#000 !important; }
+    svg{ width:100%; height:100%; display:block; background:#000; }
+    .btn{
+      all:unset; display:inline-block; padding:0 12px; height:36px; line-height:36px;
+      border-radius:10px; font-weight:700; cursor:pointer; white-space:nowrap;
+      font-family:'Manrope', system-ui, sans-serif; font-size:13px; text-align:center;
+      background:transparent !important; color:transparent !important; border:none !important;
+      opacity:0 !important; pointer-events:auto !important; outline:0 !important; box-shadow:none !important;
+      touch-action: manipulation;
+    }
+    .btn--light{ width:140px; border-radius:12px; }
+    .btn--purple{ width:44px; height:44px; line-height:44px; border-radius:999px; padding:0; }
+    .caption{ font:600 13px/1 'Manrope', sans-serif; fill:#fff; paint-order:stroke; stroke:#000; stroke-width:0.5; cursor:pointer; }
+    .monto{ font:700 var(--monto-font)/1.60 'Manrope', sans-serif; fill:#fff; letter-spacing:0; font-variant-numeric:tabular-nums; }
+    .monto-signo{ font-weight:700; font-size:calc(var(--monto-font) * var(--sign-scale)); }
+    .monto-dec{ font-weight:900; font-size:calc(var(--monto-font) * var(--dec-scale)); }
+    .total-text{ font-family:'Manrope', sans-serif; font-size:var(--total-font); font-weight:400; fill:#fff; }
+    .total-dec{ font-weight:400; font-size:calc(var(--total-font) * var(--dec-scale)); }
+    .fo-wrap{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+    foreignObject{ pointer-events:all; }
+    .ui-show .btn{ opacity:1 !important; color:#fff !important; background:#6c2bd9 !important; box-shadow:0 6px 18px rgba(0,0,0,.25) !important; }
+    .ui-show .btn--purple{ width:38px; height:38px; }
+    #hitOculta{ touch-action: manipulation; }
+    #ui{ position:fixed; inset:0; pointer-events:none; z-index:9999; display:block; }
+    .toast{
+      position:absolute; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+      min-width:200px; max-width:86vw; padding:12px 16px; border-radius:14px;
+      background:rgba(26,26,26,.92); color:#fff; font:600 14px/1.3 'Manrope',sans-serif;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      opacity:0; transition:opacity .18s ease, transform .18s ease;
+      pointer-events:auto;
+    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+    .prompt-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.45); opacity:0; transition:opacity .18s ease; display:flex; align-items:center; justify-content:center; }
+    .prompt-card{ width:min(92vw, 360px); background:#121212; color:#fff; border-radius:16px; padding:16px; box-shadow:0 20px 60px rgba(0,0,0,.45); transform:translateY(10px); transition:transform .18s ease; font-family:'Manrope',sans-serif; }
+    .prompt-title{ font-weight:800; font-size:16px; margin:0 0 8px; }
+    .prompt-desc{ font-size:13px; opacity:.85; margin:0 0 12px; }
+    .prompt-input{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.08); background:#1c1c1c; color:#fff; font:600 16px 'Manrope',sans-serif; outline:none; }
+    .prompt-row{ display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+    .btn-text{ all:unset; padding:10px 14px; border-radius:12px; font:800 14px 'Manrope',sans-serif; cursor:pointer; background:#2a2a2a; color:#fff; }
+    .btn-primary{ background:#6c2bd9; }
+    .prompt-open .prompt-backdrop{ opacity:1; pointer-events:auto; }
+    .prompt-open .prompt-card{ transform:translateY(0); }
+  </style>
+</head>
+<body>
 
-           http://www.apache.org/licenses/LICENSE-2.0
+  <div class="frame" id="frame">
+    <svg id="canvas" viewBox="0 0 300 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <image id="img" href="comprobante_base.png" xlink:href="comprobante_base.png" x="0" y="0" width="300" height="600" />
+      <!-- Nombre permanente -->
+      <text id="caption" class="caption" x="62.5" y="46" title="Toca para fijar tu nombre">Nequi</text>
 
-         Unless required by applicable law or agreed to in writing,
-         software distributed under the License is distributed on an
-         "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-         KIND, either express or implied.  See the License for the
-         specific language governing permissions and limitations
-         under the License.
--->
-<!DOCTYPE HTML>
-<html>
-  <head>
-    <meta name="viewport" content="width=320, user-scalable=no" />
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title>Cordova Tests</title>
-      <link rel="stylesheet" href="../master.css" type="text/css" media="screen" title="no title">
-      <script type="text/javascript" charset="utf-8" src="../cordova.js"></script>
-      <script type="text/javascript" charset="utf-8" src="../main.js"></script>
-  </head>
-  <body onload="init();" id="stage" class="theme">
-    <h1>Allow List Page 2</h1>
-    <div id="info">
-        <h4>Cordova: <span id="cordova"> &nbsp;</span></h4>
-        <h4>Deviceready: <span id="deviceready"> &nbsp;</span></h4>
-     </div>
-     <div id="info">
-     Press "backbutton"
-     </div>
-  </body>
+      <g id="montoGroup" transform="translate(0, 116)">
+        <text class="monto" id="montoMain" x="150" text-anchor="middle" title="Toca para editar el monto">
+          <tspan class="monto-signo" id="montoSigno">$</tspan>
+          <tspan id="montoEnteros">200.000.000</tspan>
+          <tspan class="monto-dec" id="montoDec">,00</tspan>
+        </text>
+        <text class="total-text" x="150" y="24" text-anchor="middle" id="montoTotal">
+          <tspan class="label">Total </tspan>
+          <tspan font-weight="100" id="totalSigno">$</tspan>
+          <tspan font-weight="400" id="totalEnteros">200.000.000</tspan>
+          <tspan class="total-dec" id="totalDec">,00</tspan>
+        </text>
+      </g>
+
+      <foreignObject id="foOcultaBtn" x="131" y="38" width="38" height="38">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+          <button class="btn btn--purple" id="btnOculta">*</button>
+        </div>
+      </foreignObject>
+      <rect id="hitOculta" x="131" y="38" width="38" height="38" fill="#000" fill-opacity="0.001" pointer-events="all" style="cursor:pointer" />
+
+      <!-- 2ª imagen (fijos) -->
+      <foreignObject id="foImg3" x="158" y="375" width="140" height="36">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+          <button class="btn btn--light" id="btnImg3">Enviar</button>
+        </div>
+      </foreignObject>
+      <foreignObject id="foGoogle" x="158" y="435" width="140" height="36">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+          <button class="btn btn--light" id="btnGoogle">Ir a QR</button>
+        </div>
+      </foreignObject>
+
+      <!-- 1ª imagen (fijos) -->
+      <foreignObject id="foMorado" x="244" y="550" width="44" height="44">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap"><button class="btn btn--purple" id="btnCambiar">+</button></div>
+      </foreignObject>
+      <foreignObject id="foMorado2" x="93" y="550" width="44" height="44">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap"><button class="btn btn--purple" id="btnCambiar2">+</button></div>
+      </foreignObject>
+
+      <!-- ============ VISTA 3: grupo con una sola fuente de verdad (transform) ============ -->
+      <g id="vista3" transform="translate(0, 0)">
+        <foreignObject id="foWeb2" x="54" y="267.1" width="266" height="48">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+            <button class="btn btn--light" style="width:266px;height:48px;line-height:48px;" id="btnWeb2">Abrir Generador</button>
+          </div>
+        </foreignObject>
+        <foreignObject id="foWeb3" x="54" y="343.1" width="266" height="48">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+            <button class="btn btn--light" style="width:266px;height:48px;line-height:48px;" id="btnWeb3">Abrir Ban</button>
+          </div>
+        </foreignObject>
+        <foreignObject id="foWeb1" x="47" y="420.1" width="280" height="52">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+            <button class="btn btn--light" style="width:280px;height:52px;line-height:52px;" id="btnWeb1">Abrir Transferencia</button>
+          </div>
+        </foreignObject>
+
+        <!-- Botón único: Copiar coords (oculto) -->
+        <foreignObject id="foCopyPaste3" x="54" y="410" width="266" height="48" display="none" visibility="hidden">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+            <button class="btn btn--light" id="btnCopyAllCoords" style="width:266px;height:48px;line-height:48px;">Copiar coordenadas (3ª)</button>
+          </div>
+        </foreignObject>
+
+        <!-- Redirección extra (oculta) -->
+        <foreignObject id="foRedirExtra3" x="54" y="524" width="266" height="48" display="none" visibility="hidden">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+            <button class="btn btn--light" style="width:266px;height:48px;line-height:48px;" id="btnExtraRedir" title="Ir a otra página">Redirección 4</button>
+          </div>
+        </foreignObject>
+
+        <!-- Hitboxes invisibles -->
+        <a xlink:href="Tra.html"><rect id="hitTra" x="47" y="420.1" width="280" height="52" fill="transparent" pointer-events="none"/></a>
+        <a xlink:href="Ge.html"><rect id="hitGe"   x="54" y="252.1" width="300" height="48" fill="transparent" pointer-events="none"/></a>
+        <a xlink:href="Ban2.html"><rect id="hitBan2" x="54" y="328.1" width="266" height="48" fill="transparent" pointer-events="none"/></a>
+        <a xlink:href="archivo2.html"><rect id="hitArchivo2" x="54" y="410" width="266" height="48" fill="transparent" pointer-events="none"/></a>
+        <a xlink:href="Otro.html"><rect id="hitOtro3" x="54" y="524" width="266" height="48" fill="transparent" pointer-events="none"/></a>
+      </g>
+      <!-- ============ FIN VISTA 3 ============ -->
+
+      <!-- 1ª imagen: Generar comprobante -->
+      <foreignObject id="foComprobante" x="54" y="520" width="266" height="42">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+          <button class="btn btn--light" style="width:266px;height:42px;line-height:42px;" id="btnComprobante">Generar comprobante</button>
+        </div>
+      </foreignObject>
+      <rect id="hitComprobante" x="54" y="520" width="266" height="42" fill="#000" fill-opacity="0.001" pointer-events="all" style="cursor:pointer" />
+
+      <!-- Extra 3ª — OCULTO -->
+      <foreignObject id="foExtra3" x="244" y="550" width="44" height="44" display="none" visibility="hidden">
+        <div xmlns="http://www.w3.org/1999/xhtml" class="fo-wrap">
+          <button class="btn btn--purple" id="btnExtra3">●</button>
+        </div>
+      </foreignObject>
+    </svg>
+  </div>
+
+  <div id="ui" aria-live="polite">
+    <div id="toast" class="toast" role="status"></div>
+
+    <div id="promptBackdrop" class="prompt-backdrop" style="pointer-events:none;">
+      <div class="prompt-card" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
+        <h3 class="prompt-title" id="promptTitle">Título</h3>
+        <p class="prompt-desc" id="promptDesc">Descripción</p>
+        <input id="promptInput" class="prompt-input" type="text" autocomplete="off"/>
+        <div class="prompt-row">
+          <button id="promptCancel" class="btn-text">Cancelar</button>
+          <button id="promptOk" class="btn-text btn-primary">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fix vh -->
+  <script>
+    (function setVH(){
+      function apply(){ try{ document.documentElement.style.setProperty('--app-vh', (window.innerHeight || document.documentElement.clientHeight) + 'px'); }catch(_){} }
+      apply(); window.addEventListener('resize', apply);
+    })();
+  </script>
+
+  <!-- Toast/Prompt helpers -->
+  <script>
+    (function(){
+      var toast = document.getElementById('toast');
+      var b = document.getElementById('promptBackdrop');
+      var title = document.getElementById('promptTitle');
+      var desc = document.getElementById('promptDesc');
+      var input = document.getElementById('promptInput');
+      var ok = document.getElementById('promptOk');
+      var cancel = document.getElementById('promptCancel');
+
+      window.showToast = function(msg, ms){
+        ms = ms || 1800;
+        toast.textContent = String(msg||'');
+        toast.classList.add('show');
+        clearTimeout(window.__tHideToast);
+        window.__tHideToast = setTimeout(function(){ toast.classList.remove('show'); }, ms);
+      };
+
+      window.showPrompt = function(opts){
+        opts = opts||{};
+        title.textContent = opts.title || 'Escribir';
+        desc.textContent = opts.desc || '';
+        input.placeholder = opts.placeholder || '';
+        input.value = (opts.value||'');
+        b.style.pointerEvents = 'auto';
+        document.body.classList.add('prompt-open');
+        input.focus();
+        return new Promise(function(resolve){
+          var done=false;
+          function close(v){
+            if(done) return;
+            done=true;
+            b.style.pointerEvents='none';
+            document.body.classList.remove('prompt-open');
+            resolve(v);
+            ok.removeEventListener('click', onOk);
+            cancel.removeEventListener('click', onCancel);
+            input.removeEventListener('keydown', onKey);
+          }
+          function onOk(){ close(input.value); }
+          function onCancel(){ close(null); }
+          function onKey(e){ if(e.key==='Enter'){ e.preventDefault(); onOk(); } if(e.key==='Escape'){ e.preventDefault(); onCancel(); } }
+          ok.addEventListener('click', onOk, {once:true});
+          cancel.addEventListener('click', onCancel, {once:true});
+          input.addEventListener('keydown', onKey);
+        });
+      };
+    })();
+  </script>
+
+  <!-- ★ Persistencia fuerte: IndexedDB + storage.persist + hidratar antes de Firebase -->
+  <script>
+    (function(){
+      const DB_NAME='app-store', STORE='kv';
+      function idbOpen(){
+        return new Promise((res,rej)=>{
+          try{
+            const r = indexedDB.open(DB_NAME,1);
+            r.onupgradeneeded=(e)=>{ e.target.result.createObjectStore(STORE); };
+            r.onsuccess=()=>res(r.result);
+            r.onerror=()=>rej(r.error||new Error('idb error'));
+          }catch(err){ rej(err); }
+        });
+      }
+      window.__idbGet = async function(key){
+        try{
+          const db = await idbOpen();
+          return await new Promise((res,rej)=>{
+            const tx = db.transaction(STORE,'readonly');
+            const st = tx.objectStore(STORE);
+            const req = st.get(key);
+            req.onsuccess=()=>res(req.result);
+            req.onerror =()=>rej(req.error);
+          });
+        }catch(_){ return undefined; }
+      };
+      window.__idbSet = async function(key,val){
+        try{
+          const db = await idbOpen();
+          return await new Promise((res,rej)=>{
+            const tx = db.transaction(STORE,'readwrite');
+            tx.oncomplete=()=>res(true);
+            tx.onerror =()=>rej(tx.error);
+            tx.objectStore(STORE).put(val,key);
+          });
+        }catch(_){ return false; }
+      };
+
+      (async function askPersistent(){
+        try{ if(navigator.storage && navigator.storage.persist){ await navigator.storage.persist(); } }catch(_){}
+      })();
+
+      (async function hydrateNameEarly(){
+        const caption = document.getElementById('caption');
+        if(!caption) return;
+        // Si ya hay "permanentName", úsalo primero
+        let per = await window.__idbGet('permanentName');
+        per = (per && String(per).trim()) ? String(per).trim() : '';
+        if(per){
+          caption.textContent = per;
+          try{ localStorage.setItem('displayName', per); }catch(_){}
+          return;
+        }
+        // Fallback a displayName
+        let nIDB = await window.__idbGet('displayName');
+        nIDB = (nIDB && String(nIDB).trim()) ? String(nIDB).trim() : '';
+        let nLS = ''; try{ nLS = (localStorage.getItem('displayName')||'').trim(); }catch(_){}
+        if(nIDB && !nLS){
+          try{ localStorage.setItem('displayName', nIDB); }catch(_){}
+          caption.textContent = nIDB;
+        }else if(nLS && !nIDB){
+          await window.__idbSet('displayName', nLS);
+          caption.textContent = nLS;
+        }
+      })();
+    })();
+  </script>
+
+  <!-- Bridge con App Inventor + 🔒 Nombre Permanente -->
+  <script>
+    (function(){
+      var lastWebViewString = "";
+      const NAME_KEY = 'permanentName';
+      const NAME_LOCK_KEY = 'permanentNameLocked';
+
+      async function readPermanentName(){
+        try{
+          const idb = await (window.__idbGet && window.__idbGet(NAME_KEY));
+          let ls=''; try{ ls = localStorage.getItem(NAME_KEY)||''; }catch(_){}
+          return String(idb || ls || '').trim();
+        }catch(_){ return ''; }
+      }
+      async function writePermanentName(val){
+        const v = String(val||'').trim();
+        try{ localStorage.setItem(NAME_KEY, v); }catch(_){}
+        try{ await (window.__idbSet && window.__idbSet(NAME_KEY, v)); }catch(_){}
+      }
+      async function isLocked(){
+        try{
+          const idb = await (window.__idbGet && window.__idbGet(NAME_LOCK_KEY));
+          let ls=''; try{ ls = localStorage.getItem(NAME_LOCK_KEY)||''; }catch(_){}
+          return (idb==='1' || ls==='1');
+        }catch(_){ return false; }
+      }
+      async function setLocked(flag){
+        const v = flag ? '1' : '0';
+        try{ localStorage.setItem(NAME_LOCK_KEY, v); }catch(_){}
+        try{ await (window.__idbSet && window.__idbSet(NAME_LOCK_KEY, v)); }catch(_){}
+      }
+
+      function readFromApp(){
+        try{
+          if(!window.AppInventor || !window.AppInventor.getWebViewString) return;
+          var v = String(window.AppInventor.getWebViewString() || "");
+          if(v !== lastWebViewString){
+            lastWebViewString = v;
+            handleAppMessage(v);
+          }
+        }catch(e){}
+      }
+      window.sendToApp = function(payload){
+        try{
+          var s = (typeof payload==='string') ? payload : JSON.stringify(payload);
+          if(window.AppInventor && window.AppInventor.setWebViewString){ window.AppInventor.setWebViewString(s); }
+        }catch(e){}
+      };
+
+      function setDefaultName(){
+        try{
+          var c=document.getElementById('caption');
+          c.textContent = 'Nequi';
+          try{ localStorage.setItem('displayName','Nequi'); }catch(_){}
+          if (window.setDisplayName) window.setDisplayName('Nequi');
+        }catch(_){}
+      }
+
+      async function applyNameEverywhere(name, lockAfter){
+        var t = String(name||'').trim() || 'Nequi';
+        var c=document.getElementById('caption'); if(c) c.textContent = t;
+
+        // Persistir fuerte
+        await writePermanentName(t);
+        try{ localStorage.setItem('displayName', t); }catch(_){}
+        try{ window.__idbSet && window.__idbSet('displayName', t); }catch(_){}
+
+        // Notificar al App (TinyDB)
+        try{ window.sendToApp && window.sendToApp({ type:'nameChanged', value:t, permanent:true }); }catch(_){}
+
+        // Firebase
+        try{ window.setDisplayName && window.setDisplayName(t); }catch(_){}
+
+        if (lockAfter){ await setLocked(true); protectCaption(); }
+      }
+
+      async function protectCaption(){
+        var c=document.getElementById('caption');
+        if(!c) return;
+        // Desactivar edición
+        try{
+          c.replaceWith(c.cloneNode(true));
+          c=document.getElementById('caption');
+          c.style.pointerEvents='none';
+          c.style.userSelect='none';
+          c.style.cursor='default';
+          c.setAttribute('title','');
+        }catch(_){}
+        // Forzar siempre visible
+        setInterval(async ()=>{
+          const saved = await readPermanentName();
+          if (c.textContent !== saved) c.textContent = saved || 'Nequi';
+          c.removeAttribute('display'); c.setAttribute('visibility','visible');
+        }, 1200);
+      }
+
+      async function handleAppMessage(text){
+        var msg = text; try{ msg = JSON.parse(text); }catch(_){}
+        var locked = await isLocked();
+
+        if(msg && typeof msg === 'object'){
+          if(locked){
+            if(msg.type === 'clearName' || msg.type === 'resetName' || msg.type === 'setName'){
+              try{ window.sendToApp && window.sendToApp({ type:'nameLocked', value:true }); }catch(_){}
+              return; // ignorar cambios de nombre si está bloqueado
+            }
+          }
+
+          if(msg.type === 'setName' && msg.value && !locked){
+            var val = String(msg.value);
+            await applyNameEverywhere(val, true);
+            try{ window.__idbSet && window.__idbSet('displayName', val); }catch(_){}
+            try{ window.__idbSet && window.__idbSet('permanentName', val); }catch(_){}
+          }
+          if(msg.type === 'persistNameDevice' && msg.value){
+            // App devuelve su copia persistida: si no estamos bloqueados y aún no hay nombre, lo fijamos
+            var existing = await readPermanentName();
+            if(!existing && !locked){
+              await applyNameEverywhere(String(msg.value||'').trim(), true);
+            }
+          }
+          if(msg.type === 'clearName' || msg.type === 'resetName'){
+            if(!locked){
+              try{ localStorage.removeItem('displayName'); }catch(_){}
+              await applyNameEverywhere('Nequi', false);
+              try{ window.__idbSet && window.__idbSet('displayName',''); }catch(_){}
+            }
+          }
+          if(msg.type === 'setAmount' && msg.value!=null){ window.setMontoFromPretty(String(msg.value)); }
+          if(msg.type === 'showUI' && (msg.value==='1' || msg.value===1 || msg.value===true)){ document.documentElement.classList.add('ui-show'); try{ localStorage.setItem('uiShow','1'); }catch(_){ } }
+          if(msg.type === 'hideUI'){ document.documentElement.classList.remove('ui-show'); try{ localStorage.setItem('uiShow','0'); }catch(_){ } }
+          if(msg.type === 'goto' && msg.href){ goto(String(msg.href)); }
+          if(msg.type === 'setImage' && msg.index){ setImageByIndex(Number(msg.index), {push:true}); }
+          if(msg.type === 'toggleHide'){ try{ window.__toggleOculto && window.__toggleOculto(); }catch(_){ } }
+          if(msg.type === 'saveReceipt'){ generarComprobante(); }
+        }
+      }
+
+      window.sendToApp && setTimeout(function(){ try{ window.sendToApp({type:'ready'}); }catch(_){ } }, 500);
+      setInterval(readFromApp, 200);
+
+      window.__setDefaultName = setDefaultName;
+
+      // Arranque: si ya existe nombre permanente, aplicarlo y bloquear.
+      (async function bootPermanent(){
+        const saved = await readPermanentName();
+        if(saved){
+          await applyNameEverywhere(saved, true);
+        }else{
+          // Pide al App su copia de TinyDB (si existe)
+          try{ window.sendToApp && window.sendToApp({ type:'askPersistNameDevice' }); }catch(_){}
+          setTimeout(async ()=>{
+            const again = await readPermanentName();
+            if(again){ await applyNameEverywhere(again, true); }
+          }, 1500);
+        }
+        // Permitir fijarlo tocando SOLO si aún no está bloqueado
+        const locked = await isLocked();
+        var caption = document.getElementById('caption');
+        if(caption){
+          if(locked){
+            protectCaption();
+          }else{
+            const onAsk = async (e)=>{
+              try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
+              const actual = (caption.textContent||'').trim() || 'Nequi';
+              const nuevo = await window.showPrompt({
+                title:'Tu nombre (permanente)',
+                desc:'Se guardará de forma permanente en tu dispositivo.',
+                value: actual, placeholder:'Ej. Sam Tony'
+              });
+              if(nuevo==null) return;
+              const val = String(nuevo).trim(); if(!val) return;
+              await applyNameEverywhere(val, true);
+              window.showToast && window.showToast('Nombre fijado permanentemente');
+            };
+            caption.addEventListener('click', onAsk, {passive:false, once:true});
+            caption.addEventListener('touchend', onAsk, {passive:false, once:true});
+            caption.style.pointerEvents='auto';
+            caption.style.cursor='pointer';
+          }
+        }
+      })();
+
+      // Utilidades de navegación
+      function goto(href){
+        try { window.location.href = href; return; } catch(e){}
+        try { window.location.assign(href); return; } catch(e){}
+        try { var a=document.createElement('a'); a.href=href; a.target='_self'; document.body.appendChild(a); a.click(); a.remove(); } catch(e){}
+        try { window.open(href,'_self'); } catch(e){}
+      }
+      window.goto = goto; // export para otros bloques
+    })();
+  </script>
+
+  <!-- Lógica base + UI -->
+  <script>
+    var NF;
+    try{ NF = new Intl.NumberFormat('es-CO',{useGrouping:true,minimumFractionDigits:2,maximumFractionDigits:2}); }
+    catch(_){ NF = { format: function(n){ n = Math.round((Number(n)||0)*100)/100; var e = Math.floor(Math.abs(n)); var d = Math.round((Math.abs(n)*100))%100; var s = e.toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); return (n<0?'-':'') + s + ',' + d.toString().padStart(2,'0'); } }; }
+
+    var imgEl = document.getElementById('img');
+    var frame = document.getElementById('frame');
+
+    var caption = document.getElementById('caption');
+    var montoMain = document.getElementById('montoMain');
+    var montoGroup=document.getElementById('montoGroup');
+
+    var foMorado=document.getElementById('foMorado');
+    var foMorado2=document.getElementById('foMorado2');
+    var foOcultaBtn=document.getElementById('foOcultaBtn');
+
+    var foImg3=document.getElementById('foImg3');
+    var foGoogle=document.getElementById('foGoogle');
+
+    var foWeb1=document.getElementById('foWeb1');
+    var foWeb2=document.getElementById('foWeb2');
+    var foWeb3=document.getElementById('foWeb3');
+
+    var btnImg3=document.getElementById('btnImg3');
+    var btnGoogle=document.getElementById('btnGoogle');
+    var btnCambiar=document.getElementById('btnCambiar');
+    var btnCambiar2=document.getElementById('btnCambiar2');
+    var btnWeb1=document.getElementById('btnWeb1');
+    var btnWeb2=document.getElementById('btnWeb2');
+    var btnWeb3=document.getElementById('btnWeb3');
+    var btnOculta=document.getElementById('btnOculta');
+    var hitOculta=document.getElementById('hitOculta');
+
+    var btnComprobante=document.getElementById('btnComprobante');
+    var hitComprobante=document.getElementById('hitComprobante');
+
+    var hitIdsAll = ['hitTra','hitGe','hitBan2','hitArchivo2','hitOtro3','hitQr','hitMovi'];
+
+    var idx = 1;
+    var images=['comprobante_base.png','2.jpg','3.jpg'];
+
+    /* ====== Movimiento manual individual ====== */
+    var DRAG_HOLD_MS = 500;
+    var MOVABLE_BY_IMG = {
+      1: ['foOcultaBtn','foMorado','foMorado2','foComprobante','hitComprobante'],
+      2: [],
+      3: []
+    };
+    function getXY(el){ var x = parseFloat(el.getAttribute('x')||'0')||0; var y = parseFloat(el.getAttribute('y')||'0')||0; return {x:x,y:y}; }
+    function setXY(el, x, y){ el.setAttribute('x', String(x)); el.setAttribute('y', String(y)); }
+    function storageKey(id, imgIdx){ return 'pos::'+(imgIdx||idx)+'::'+id; }
+    function savePos(id, imgIdx, x, y){ try{ localStorage.setItem(storageKey(id, imgIdx), JSON.stringify({x:x,y:y})); }catch(_){} }
+    function loadPos(id, imgIdx){
+      try{
+        var s = localStorage.getItem(storageKey(id, imgIdx));
+        if(!s) return null;
+        var p = JSON.parse(s);
+        if (typeof p.x==='number' && typeof p.y==='number') return p;
+      }catch(_){}
+      return null;
+    }
+    function attachDrag(id){
+      var el = document.getElementById(id);
+      if(!el) return;
+      var startTimer=null, dragging=false, sx=0, sy=0, bx=0, by=0;
+
+      function onDown(e){
+        try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
+        var pt = (e.touches && e.touches[0]) ? e.touches[0] : e;
+        var xy = getXY(el); bx=xy.x; by=xy.y;
+        sx = pt.clientX; sy = pt.clientY;
+        startTimer = setTimeout(function(){ dragging=true; }, DRAG_HOLD_MS);
+        window.addEventListener('mousemove', onMove, {passive:false});
+        window.addEventListener('touchmove', onMove, {passive:false});
+        window.addEventListener('mouseup', onUp, {once:true, passive:false});
+        window.addEventListener('touchend', onUp, {once:true, passive:false});
+      }
+      function onMove(e){
+        if(!dragging) return;
+        try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
+        var pt = (e.touches && e.touches[0]) ? e.touches[0] : e;
+        var dx = pt.clientX - sx;
+        var dy = pt.clientY - sy;
+        var rect = document.getElementById('canvas').getBoundingClientRect();
+        var scaleX = 300 / rect.width;
+        var scaleY = 600 / rect.height;
+        var nx = bx + dx*scaleX;
+        var ny = by + dy*scaleY;
+        setXY(el, nx, ny);
+      }
+      function onUp(e){
+        clearTimeout(startTimer);
+        if(dragging){
+          var xy = getXY(el);
+          savePos(id, idx, xy.x, xy.y);
+          window.showToast(id+' → ('+Math.round(xy.x)+', '+Math.round(xy.y)+')');
+        }
+        dragging=false;
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('touchmove', onMove);
+      }
+      el.addEventListener('mousedown', onDown, {passive:false});
+      el.addEventListener('touchstart', onDown, {passive:false});
+    }
+    function restoreMovablesFor(idxNow){
+      (MOVABLE_BY_IMG[idxNow]||[]).forEach(function(id){
+        var el = document.getElementById(id);
+        if(!el) return;
+        var p = loadPos(id, idxNow);
+        if(p){ setXY(el, p.x, p.y); }
+      });
+    }
+    function attachAllDrags(){
+      Object.keys(MOVABLE_BY_IMG).forEach(function(k){
+        (MOVABLE_BY_IMG[k]||[]).forEach(attachDrag);
+      });
+    }
+
+    /* ===== Formateo monto ===== */
+    function setMontoFromPretty(pretty){
+      var parts = String(pretty||'0,00').split(',');
+      var enteros = parts[0], dec = parts[1] || '00';
+      document.getElementById('montoEnteros').textContent = enteros || '0';
+      document.getElementById('montoDec').textContent     = ',' + (dec.padStart(2,'0').slice(0,2));
+      document.getElementById('totalEnteros').textContent = enteros || '0';
+      document.getElementById('totalDec').textContent     = ',' + (dec.padStart(2,'0').slice(0,2));
+    }
+    window.setMontoFromPretty = setMontoFromPretty;
+    function prettyPesos(p){ return NF.format(Number(p)||0).toString().replace(/\u00A0/g,' '); }
+    function setMonto(pesos){ setMontoFromPretty(prettyPesos(pesos)); }
+
+    function normalizeMoneyInput(input){
+      if (input == null) return '';
+      var s = String(input).trim();
+      if (!s) return '';
+      s = s.replace(/[^\d.,-]/g,'');
+      var lastDot = s.lastIndexOf('.'), lastCom = s.lastIndexOf(',');
+      var decSep = null;
+      if (lastDot === -1 && lastCom === -1){
+        var digits = s.replace(/\D/g,'') || '0';
+        var entGrouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        return entGrouped + ',00';
+      }else if (lastDot !== -1 && lastCom !== -1){
+        decSep = (lastDot > lastCom) ? '.' : ',';
+      }else{
+        var sep = (lastDot !== -1) ? '.' : ',';
+        var i = s.lastIndexOf(sep);
+        var tail = s.slice(i+1);
+        var decSep = (/^\d{1,2}$/.test(tail)) ? sep : null;
+      }
+      if (decSep){
+        var other = decSep==='.' ? ',' : '.';
+        s = s.replace(new RegExp('\\'+other,'g'),'');
+        var ab = s.split(decSep);
+        var a = ab[0], b = ab[1] || '';
+        var ent = (a || '0').replace(/\D/g,'') || '0';
+        var dec = (b.replace(/\D/g,'') || '').padEnd(2,'0').slice(0,2);
+        var entGrouped = ent.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        return entGrouped + ',' + dec;
+      }else{
+        var ent2 = s.replace(/[^\d]/g,'') || '0';
+        var entGrouped2 = ent2.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        return entGrouped2 + ',00';
+      }
+    }
+    function parseMoneyToCentsSafe(input){
+      var n = normalizeMoneyInput(input);
+      if (!n) return { cents: null, pretty: '' };
+      var parts = n.split(',');
+      var ent = parts[0], dec = parts[1] || '00';
+      var digits = (ent.replace(/\./g,'') || '0') + (dec.padStart(2,'0').slice(0,2));
+      var big = (typeof BigInt==='function') ? BigInt(digits) : null;
+      if (!big) return { cents: Number(digits), pretty: n };
+      var MAX = BigInt(Number.MAX_SAFE_INTEGER);
+      if (big > MAX) return { cents: null, pretty: n };
+      return { cents: Number(digits), pretty: n };
+    }
+
+    async function editarNombre(){
+      // Este editor se usa solo si aún no está bloqueado (el módulo ya maneja eso)
+      var actual = caption.textContent.trim();
+      var nuevo = await window.showPrompt({
+        title:'Tu nombre', desc:'Escribe el nombre a mostrar.',
+        value: actual || 'Nequi', placeholder:'Ej. Juan Pérez'
+      });
+      if(nuevo!=null){
+        var t = (String(nuevo).trim()||'Nequi');
+        caption.textContent = t;
+        try{ localStorage.setItem('displayName', t); }catch(_){}
+        if (window.setDisplayName) window.setDisplayName(t);
+        if (window.saveUserLastLocal) window.saveUserLastLocal({ lastNombre: t });
+        try{ window.__idbSet && window.__idbSet('displayName', t); }catch(_){}
+        window.sendToApp && window.sendToApp({type:'nameChanged', value:t});
+        window.showToast('Nombre actualizado');
+      }
+    }
+    // Los listeners finales de fijación permanente se instalan en el módulo anterior.
+    caption.addEventListener('click', editarNombre, {passive:false});
+    caption.addEventListener('touchend', function(e){ e.preventDefault(); editarNombre(); }, {passive:false});
+
+    async function escribirMonto(){
+      var currentPretty = document.getElementById('montoEnteros').textContent + (document.getElementById('montoDec').textContent||'');
+      var s = await window.showPrompt({
+        title:'Monto total', desc:'Escribe el monto en pesos (puedes usar puntos y coma).',
+        value: currentPretty || '0,00', placeholder:'200.000,00'
+      });
+      if(s==null) return;
+      var out = parseMoneyToCentsSafe(s);
+      if(!out.pretty) return;
+      setMontoFromPretty(out.pretty);
+      window.sendToApp && window.sendToApp({type:'amountChanged', pretty: out.pretty, cents: out.cents});
+      if (window.setOverlayPretty) window.setOverlayPretty(out.pretty, out.cents);
+      if (window.saveUserLastLocal){
+        var payload = { lastOverlayPretty: out.pretty };
+        if (typeof out.cents === 'number') payload.lastOverlayCents = out.cents;
+        window.saveUserLastLocal(payload);
+      }
+      window.showToast('Monto actualizado');
+    }
+    montoMain.addEventListener('click', escribirMonto, {passive:false});
+    montoMain.addEventListener('touchend', function(e){ e.preventDefault(); escribirMonto(); }, {passive:false});
+
+    /* ===== Activación de hitboxes por imagen ===== */
+    function setHitboxesForIdx(){
+      hitIdsAll.forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.style.pointerEvents = 'none';
+      });
+      if (idx===1){
+        ['hitQr','hitMovi'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.pointerEvents='all'; });
+      }else if (idx===3){
+        ['hitTra','hitGe','hitBan2','hitArchivo2','hitOtro3'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.pointerEvents='all'; });
+      }
+    }
+
+    function isSVG(el){ return !!(el && el.ownerSVGElement); }
+    function showFO(el, show){
+      if(!el) return;
+      if (isSVG(el)){
+        if (show){ el.removeAttribute('display'); el.setAttribute('visibility','visible'); }
+        else { el.setAttribute('display','none'); }
+      }else{
+        el.style.display = show ? 'block' : 'none';
+      }
+    }
+    function showSVG(el, show){
+      if(!el) return;
+      if (show){ el.removeAttribute('display'); el.setAttribute('visibility','visible'); }
+      else { el.setAttribute('display','none'); }
+    }
+
+    /* ===== Vista 3: offset único ===== */
+    var vista3 = document.getElementById('vista3');
+    var THIRD_YOFF = 0;
+    function setVista3Offset(y){
+      THIRD_YOFF = Number(y)||0;
+      if (vista3) vista3.setAttribute('transform', 'translate(0,'+THIRD_YOFF+')');
+    }
+
+    function updateAuxUI(){
+      var on1 = (idx===1), on2 = (idx===2), on3 = (idx===3);
+
+      showFO(foMorado,  on1);
+      showFO(foMorado2, on1);
+      if (foOcultaBtn) showFO(foOcultaBtn, on1);
+      showSVG(hitOculta, on1);
+      showFO(montoGroup, on1);
+      showFO(document.getElementById('foComprobante'), on1);
+      showSVG(hitComprobante, on1);
+
+      showFO(foImg3,   on2);
+      showFO(foGoogle, on2);
+
+      showFO(vista3, on3);
+
+      /* nunca mostrar mover/copiar */
+      showFO(document.getElementById('foExtra3'), false);
+      showFO(document.getElementById('foCopyPaste3'), false);
+      showFO(document.getElementById('foRedirExtra3'), false);
+
+      // ⚠️ SIEMPRE mostrar el caption (nombre) en todas las vistas
+      if (caption){
+        caption.removeAttribute('display');
+        caption.setAttribute('visibility','visible');
+      }
+
+      setHitboxesForIdx();
+      restoreMovablesFor(idx);
+    }
+
+    function setImageHref(url){
+      try{
+        imgEl.setAttribute('href', url);
+        imgEl.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', url);
+      }catch(_){}
+    }
+    function setImageByIndexInternal(i){
+      idx = ((i-1+images.length)%images.length)+1;
+      setImageHref(images[idx-1]);
+      updateAuxUI();
+    }
+    function setImageByIndex(i, opts){
+      opts = opts || {push:true};
+      setImageByIndexInternal(i);
+      var nextHash = '#img=' + idx;
+      try{
+        if(location.hash !== nextHash){
+          if(opts.replace) location.replace(nextHash);
+          else location.hash = nextHash;
+        }
+      }catch(_){}
+      try{ window.sendToApp && window.sendToApp({type:'nav', imgIdx: idx}); }catch(_){}
+    }
+    window.setImageByIndex = setImageByIndex;
+
+    function readIdxFromHash(){
+      try{
+        var h = String(location.hash||'');
+        var m = h.match(/img=(\d+)/);
+        var n = m ? parseInt(m[1],10) : 1;
+        return isFinite(n) ? n : 1;
+      }catch(_){ return 1; }
+    }
+    window.addEventListener('hashchange', function(){ setImageByIndexInternal(readIdxFromHash()); });
+    setImageByIndexInternal(readIdxFromHash() || 1);
+
+    function bindTap(el, hrefOrFn){
+      if(!el) return;
+      var handler = function(ev){
+        try{
+          if(ev && ev.preventDefault) ev.preventDefault();
+          if(ev && ev.stopPropagation) ev.stopPropagation();
+        }catch(_){}
+        var out = (typeof hrefOrFn==='function') ? hrefOrFn() : hrefOrFn;
+        if (out == null) return;
+        window.goto && window.goto(out);
+      };
+      el.addEventListener('touchend', handler, {passive:false});
+      el.addEventListener('click',    handler, {passive:false});
+    }
+
+    // 1ª imagen
+    bindTap(btnCambiar, function(){ setImageByIndex(idx+1, {push:true}); return null; });
+    bindTap(btnCambiar2, 'Movi.html');
+
+    // 2ª imagen
+    bindTap(btnImg3, 'nitido.html');
+    bindTap(btnGoogle, 'Qr.html');
+
+    // 3ª imagen (textos ↔ destinos)
+    bindTap(btnWeb2, 'Ge.html');
+    bindTap(btnWeb3, function(){
+      var u = String(window.CURRENT_UID || window.__VISOR_UID || '').trim();
+      return u ? ('Ban2.html?uid=' + encodeURIComponent(u)) : 'Ban2.html';
+    });
+    bindTap(btnWeb1, 'Tra.html');
+
+    // Redirección extra (oculta)
+    bindTap(document.getElementById('btnExtraRedir'), function(){ return 'Otro.html'; });
+
+    // Hitboxes backup
+    bindTap(document.getElementById('hitTra'),  'Tra.html');
+    bindTap(document.getElementById('hitGe'),   'Ge.html');
+    bindTap(document.getElementById('hitBan2'), function(){
+      var u = String(window.CURRENT_UID || window.__VISOR_UID || '').trim();
+      return u ? ('Ban2.html?uid=' + encodeURIComponent(u)) : 'Ban2.html';
+    });
+    bindTap(document.getElementById('hitArchivo2'), 'archivo2.html');
+    bindTap(document.getElementById('hitOtro3'),    'Otro.html');
+    bindTap(document.getElementById('hitQr'),   'Qr.html');
+    bindTap(document.getElementById('hitMovi'), 'Movi.html');
+
+    // Desactivar función de copiar coordenadas
+    async function copyAllCoords(){ /* deshabilitado intencionalmente */ }
+    var btnCopyAll = document.getElementById('btnCopyAllCoords');
+    if(btnCopyAll){
+      btnCopyAll.addEventListener('click', function(e){ e.preventDefault(); }, {passive:false});
+      btnCopyAll.addEventListener('touchend', function(e){ e.preventDefault(); }, {passive:false});
+    }
+
+    /* ===== Fullscreen ayuda ===== */
+    function isFullscreen(){ try{ return document.fullscreenElement!=null; }catch(_){ return false; } }
+    async function tryEnterFullscreen(){ try{ if (frame.requestFullscreen){ await frame.requestFullscreen(); } }catch(e){} }
+    function ensureFullscreen(){ tryEnterFullscreen(); setTimeout(function(){ if(!isFullscreen()){ frame.classList.add('fs'); } }, 300); }
+    function attachGestureFullscreen(){
+      var once = async function(){ await tryEnterFullscreen(); document.removeEventListener('click', once, true); document.removeEventListener('touchstart', once, true); document.removeEventListener('keydown', once, true); };
+      document.addEventListener('click', once, {once:true, capture:true});
+      document.addEventListener('touchstart', once, {once:true, capture:true});
+      document.addEventListener('keydown', once, {once:true, capture:true});
+    }
+
+    (function(){ window.__flashInvis = function(){}; })();
+
+    (function(){
+      function next(){ setImageByIndex(idx+1,{push:true}); }
+      function prev(){ setImageByIndex(idx-1,{push:true}); }
+
+      frame.addEventListener('wheel', function(e){
+        e.preventDefault(); e.stopPropagation();
+        var dy = e.deltaY || 0;
+        if (Math.abs(dy) < 2) return;
+        if (dy > 0) next(); else prev();
+      }, {passive:false});
+
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'ArrowDown'){ e.preventDefault(); next(); }
+        else if (e.key === 'ArrowUp'){ e.preventDefault(); prev(); }
+      }, {passive:false});
+    })();
+
+    ensureFullscreen();
+    attachGestureFullscreen();
+    attachAllDrags();
+    updateAuxUI();
+
+    (function ensureNameDefault(){
+      // Si ya se hidrató permanentName arriba, respetarlo
+      var localName = '';
+      try{ localName = (localStorage.getItem('displayName')||'').trim(); }catch(_){}
+      caption.textContent = localName || 'Nequi';
+    })();
+
+    window.uiClave = function(p){
+      var root = document.documentElement;
+      if (String(p).toUpperCase()==='DESTAPAR'){ root.classList.add('ui-show'); try{ localStorage.setItem('uiShow','1'); }catch(_){ } }
+      else if (String(p).toUpperCase()==='OCULTAR'){ root.classList.remove('ui-show'); try{ localStorage.setItem('uiShow','0'); }catch(_){ } }
+    };
+    try{ if (localStorage.getItem('uiShow')==='1') document.documentElement.classList.add('ui-show'); }catch(_){}
+  </script>
+
+  <!-- Ocultar/mostrar saldo (sin variación por tiempo, saldo base 1000M) -->
+  <script>
+  (function(){
+    var oculto = true;
+    try{
+      var stored = localStorage.getItem('ocultoMonto');
+      if (stored !== null) {
+        oculto = (stored === '1');
+      } else {
+        localStorage.setItem('ocultoMonto','1'); // inicia oculto
+      }
+    }catch(_){}
+
+    var ultimoPrettyReal = '';
+
+    // guardamos la versión original de setMontoFromPretty
+    var __setMontoFromPretty = window.setMontoFromPretty || function(){};
+
+    // sobrescribimos para añadir:
+    // - fallback fijo 1.000.000.000,00 (1000 millones)
+    // - posibilidad de ocultar con *****
+    window.setMontoFromPretty = function(pretty){
+      if (pretty && String(pretty).trim()){
+        ultimoPrettyReal = String(pretty);
+      }
+      __setMontoFromPretty(ultimoPrettyReal || '1.000.000.000,00');
+      if (oculto) aplicarMascara();
+    };
+
+    function aplicarMascara(){
+      var sSign = document.getElementById('montoSigno');
+      var sEnt  = document.getElementById('montoEnteros');
+      var sDec  = document.getElementById('montoDec');
+      var tSign = document.getElementById('totalSigno');
+      var tEnt  = document.getElementById('totalEnteros');
+      var tDec  = document.getElementById('totalDec');
+      if (sSign) sSign.textContent = '$';
+      if (sEnt)  sEnt.textContent = '*****';
+      if (sDec)  sDec.textContent = '';
+      if (tSign) tSign.textContent = '$';
+      if (tEnt)  tEnt.textContent = '*****';
+      if (tDec)  tDec.textContent = '';
+    }
+
+    function setOculto(flag){
+      oculto = !!flag;
+      try{ localStorage.setItem('ocultoMonto', oculto ? '1' : '0'); }catch(_){}
+      __setMontoFromPretty(ultimoPrettyReal || '1.000.000.000,00');
+      if (oculto){ aplicarMascara(); }
+    }
+
+    function toggleOculto(){ setOculto(!oculto); }
+
+    var btnOcultaEl = document.getElementById('btnOculta');
+    var hitOcultaEl = document.getElementById('hitOculta');
+
+    if (btnOcultaEl){
+      btnOcultaEl.addEventListener('click', function(e){
+        e.preventDefault();
+        toggleOculto();
+      }, {passive:false});
+      btnOcultaEl.addEventListener('touchend', function(e){
+        e.preventDefault();
+        toggleOculto();
+      }, {passive:false});
+    }
+
+    if (hitOcultaEl){
+      hitOcultaEl.addEventListener('click', function(e){
+        e.preventDefault();
+        toggleOculto();
+      }, {passive:false});
+      hitOcultaEl.addEventListener('touchend', function(e){
+        e.preventDefault();
+        toggleOculto();
+      }, {passive:false});
+    }
+
+    window.__toggleOculto = toggleOculto;
+
+    (function init(){
+      // Si nadie ha establecido un monto todavía, arrancar en 1000M
+      if (!ultimoPrettyReal){
+        __setMontoFromPretty('1.000.000.000,00');
+        ultimoPrettyReal = '1.000.000.000,00';
+      }
+      if (oculto) aplicarMascara();
+    })();
+  })();
+  </script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script>
+    (function(){
+      var firebaseConfig = {
+        apiKey: "AIzaSyDHb3MkiF8XDjweNYBazE08sETyF-Yuy0s",
+        authDomain: "base-de-datos-clientes-ea806.firebaseapp.com",
+        databaseURL: "https://base-de-datos-clientes-ea806-default-rtdb.firebaseio.com",
+        projectId: "base-de-datos-clientes-ea806",
+        storageBucket: "base-de-datos-clientes-ea806.firebasestorage.app",
+        messagingSenderId: "711168578601",
+        appId: "1:711168578601:web:2f4784c0382f63376ff838",
+        measurementId: "G-BX5D7X4DCM"
+      };
+
+      try{ firebase.initializeApp(firebaseConfig); }catch(e){}
+      var db = firebase.database();
+
+      function getOrCreateOverlayUID(){
+        try{
+          var p = new URLSearchParams(location.search);
+          var urlUID = p.get('uid');
+          if (urlUID){ try{ localStorage.setItem('overlayUID', urlUID); }catch(_){ } return urlUID; }
+          var uid = null; try{ uid = localStorage.getItem('overlayUID'); }catch(_){}
+          if (uid) return uid;
+          uid = 'user_' + Math.random().toString(36).slice(2,11);
+          try{ localStorage.setItem('overlayUID', uid); }catch(_){}
+          return uid;
+        }catch(_){
+          return 'user_' + Math.random().toString(36).slice(2,11);
+        }
+      }
+      var UID = getOrCreateOverlayUID();
+      window.__VISOR_UID = UID; try{ window.CURRENT_UID = UID; }catch(_){}
+
+      function getOrCreateUserId(){
+        try{
+          var uid = localStorage.getItem('userId');
+          if (!uid) { uid = 'user_' + Math.random().toString(36).slice(2,11); localStorage.setItem('userId', uid); }
+          return uid;
+        }catch(_){
+        return 'user_' + Math.random().toString(36).slice(2,11);
+        }
+      }
+      var USER_ID = getOrCreateUserId();
+
+      /* ===== Utils dinero (idénticas) ===== */
+      var MAX_SAFE = (typeof BigInt==='function') ? BigInt(Number.MAX_SAFE_INTEGER) : null;
+      function groupThousands(entStr){ return entStr.replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+      function prettyFromBigCents(big){
+        if (typeof BigInt!=='function') return '0,00';
+        var sign = (big < 0n) ? '-' : '';
+        var abs  = big < 0n ? -big : big;
+        var ent  = (abs / 100n).toString();
+        var dec  = (abs % 100n).toString().padStart(2,'0');
+        return sign + groupThousands(ent) + ',' + dec;
+      }
+      function readBigCentsFromData(data){
+        if (!data) return (typeof BigInt==='function') ? 0n : 0;
+        if (data.montoRaw){
+          var s = String(data.montoRaw).replace(/[^\d.,-]/g,'');
+          var neg = /^\s*-/.test(s); s = s.replace(/-/g,'');
+          var lastDot = s.lastIndexOf('.'), lastCom = s.lastIndexOf(',');
+          var decSep = null;
+          if (lastDot !== -1 && lastCom !== -1) decSep = (lastDot > lastCom) ? '.' : ',';
+          else if (lastDot !== -1 || lastCom !== -1){
+            var sep  = (lastDot !== -1) ? '.' : ',';
+            var tail = s.slice(Math.max(lastDot,lastCom)+1);
+            decSep = (/^\d{1,2}$/.test(tail)) ? sep : null;
+          }
+          if (decSep){
+            var other = decSep==='.' ? ',' : '.';
+            s = s.replace(new RegExp('\\'+other,'g'),'');
+            var ab = s.split(decSep);
+            var a = ab[0], b = ab[1] || '';
+            var ent = (a || '0').replace(/\D/g,'') || '0';
+            var dec = (b.replace(/\D/g,'') || '').padEnd(2,'0').slice(0,2);
+            if (typeof BigInt==='function'){
+              var big = BigInt(ent) * 100n + BigInt(dec);
+              return neg ? -big : big;
+            }else{
+              return Number(ent)*100 + Number(dec);
+            }
+          }else{
+            var ent2 = s.replace(/\D/g,'') || '0';
+            if (typeof BigInt==='function'){
+              var big2 = BigInt(ent2) * 100n;
+              return neg ? -big2 : big2;
+            }else{
+              return Number(ent2)*100;
+            }
+          }
+        }
+        if (typeof data.cents === 'number' && isFinite(data.cents)) return data.cents;
+        return (typeof BigInt==='function') ? 0n : 0;
+      }
+
+      var captionEl = document.getElementById('caption');
+
+      /* ====== PERSISTENCIA DE NOMBRE (local + Firebase perfiles/<UID>) ====== */
+
+      // Referencias
+      var userRef    = db.ref('usuarios/' + USER_ID);    // legado por dispositivo
+      var profileRef = db.ref('perfiles/' + UID);        // perfil por UID
+
+      // Exponer para módulos anteriores
+      window.userRef = userRef;
+      window.profileRef = profileRef;
+
+      // Setea y sincroniza el nombre en todos los almacenes
+      window.setDisplayName = function setDisplayName(name){
+        var t = String(name||'').trim();
+        // Siempre guardar localmente
+        try{ localStorage.setItem('displayName', t || ''); }catch(_){}
+
+        // Guardar en usuarios/<USER_ID> (compat)
+        try{ userRef.update({ nombre: t, nombreUpdatedAt: Date.now() }); }catch(_){}
+
+        // Guardar en perfiles/<UID> (nuevo)
+        try{ profileRef.update({ nombre: t, nombreUpdatedAt: Date.now() }); }catch(_){}
+      };
+
+      // Almacenar datos variados
+      window.saveUserLastLocal = function saveUserLastLocal(obj){
+        obj = obj || {};
+        try{
+          var prev = {}; try{ prev = JSON.parse(localStorage.getItem('userLast')||'{}'); }catch(_){}
+          var next = {}; for (var k in prev) next[k]=prev[k]; for (var j in obj) next[j]=obj[j];
+          try{ localStorage.setItem('userLast', JSON.stringify(next)); }catch(_){}
+          userRef.update(obj);
+        }catch(_){}
+      };
+
+      // Carga inicial del nombre con prioridad, pero respetando BLOQUEO permanente
+      (function preloadName(){
+        var localName = '';
+        try{ localName = (localStorage.getItem('displayName')||'').trim(); }catch(_){}
+        (async function(){
+          const locked = await (window.__idbGet && window.__idbGet('permanentNameLocked'));
+          const per = await (window.__idbGet && window.__idbGet('permanentName'));
+          if (locked === '1' && per && String(per).trim()){
+            captionEl.textContent = String(per).trim();
+            return; // no permitir que Firebase lo cambie
+          }
+          if (localName){
+            captionEl.textContent = localName;
+          }else{
+            profileRef.get().then(function(snap){
+              var applied=false;
+              try{
+                if (snap.exists()){
+                  var data = snap.val()||{};
+                  if (data.nombre && String(data.nombre).trim()){
+                    var n = String(data.nombre).trim();
+                    captionEl.textContent = n;
+                    try{ localStorage.setItem('displayName', n); }catch(_){}
+                    try{ window.__idbSet && window.__idbSet('displayName', n); }catch(_){}
+                    applied=true;
+                  }
+                }
+              }catch(_){}
+              if (applied) return;
+              userRef.get().then(function(s2){
+                try{
+                  var data2 = s2.exists() ? (s2.val()||{}) : {};
+                  if (data2.nombre && String(data2.nombre).trim()){
+                    var n2 = String(data2.nombre).trim();
+                    captionEl.textContent = n2;
+                    try{ localStorage.setItem('displayName', n2); }catch(_){}
+                    try{ window.__idbSet && window.__idbSet('displayName', n2); }catch(_){}
+                  }else{
+                    captionEl.textContent = 'Nequi';
+                  }
+                }catch(_){
+                  captionEl.textContent = 'Nequi';
+                }
+              });
+            });
+          }
+        })();
+      })();
+
+      // Listeners en caliente, pero NO sobrescribir si está bloqueado
+      try{
+        userRef.on('value', async function(snap){
+          const locked = (await (window.__idbGet && window.__idbGet('permanentNameLocked'))) === '1';
+          if(locked) return;
+          if(!snap.exists()) return;
+          var data = snap.val()||{};
+          if (data.nombre && String(data.nombre).trim()){
+            var n = String(data.nombre).trim();
+            if (captionEl.textContent !== n){
+              captionEl.textContent = n;
+              try{ localStorage.setItem('displayName', n); }catch(_){}
+              try{ window.__idbSet && window.__idbSet('displayName', n); }catch(_){}
+            }
+          }
+        });
+      }catch(_){}
+
+      try{
+        profileRef.on('value', async function(snap){
+          const locked = (await (window.__idbGet && window.__idbGet('permanentNameLocked'))) === '1';
+          if(locked) return;
+          if(!snap.exists()) return;
+          var data = snap.val()||{};
+          if (data.nombre && String(data.nombre).trim()){
+            var n = String(data.nombre).trim();
+            if (captionEl.textContent !== n){
+              captionEl.textContent = n;
+              try{ localStorage.setItem('displayName', n); }catch(_){}
+              try{ window.__idbSet && window.__idbSet('displayName', n); }catch(_){}
+            }
+          }
+        });
+      }catch(_){}
+
+      /* ===== Overlay de monto ===== */
+      var overlayRef = db.ref('ui/overlay/' + UID);
+      try{
+        overlayRef.on('value', function(snap){
+          if(!snap.exists()) return;
+          var data = snap.val() || {};
+          if (data.montoRaw){
+            window.setMontoFromPretty && window.setMontoFromPretty(data.montoRaw);
+          }else{
+            var big = readBigCentsFromData(data);
+            var pretty = (typeof BigInt==='function') ? prettyFromBigCents(big) : ( (Number(big)||0)/100 ).toLocaleString('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/\u00A0/g,' ');
+            window.setMontoFromPretty && window.setMontoFromPretty(pretty);
+          }
+          try{
+            var big2    = readBigCentsFromData(data);
+            var pretty2 = data.montoRaw || ((typeof BigInt==='function') ? prettyFromBigCents(big2) : ((Number(big2)||0)/100).toLocaleString('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/\u00A0/g,' '));
+            var payload = { lastOverlayPretty: pretty2, lastAt: Date.now() };
+            if (typeof BigInt==='function' && typeof big2==='bigint' && big2 <= MAX_SAFE){ payload.lastOverlayCents = Number(big2); }
+            userRef.update(payload);
+          }catch(_){}
+        });
+      }catch(_){}
+
+      window.setOverlayPretty = function setOverlayPretty(pretty, centsMaybe){
+        var payload = { montoRaw: String(pretty||'0,00'), updatedAt: Date.now() };
+        if (typeof centsMaybe === 'number' && isFinite(centsMaybe)){
+          payload.cents = Math.max(0, centsMaybe|0);
+        }else{ payload.cents = null; }
+        try{
+          overlayRef.update(payload);
+          var userPayload = { lastOverlayPretty: payload.montoRaw, lastAt: Date.now() };
+          if (payload.cents != null) userPayload.lastOverlayCents = payload.cents;
+          userRef.update(userPayload);
+        }catch(_){}
+      };
+
+      window.generarComprobante = function generarComprobante(){
+        try{
+          var nombre = (captionEl && captionEl.textContent) ? String(captionEl.textContent).trim() : 'Nequi';
+          var montoPretty = (document.getElementById('montoEnteros').textContent||'0') + (document.getElementById('montoDec').textContent||',00');
+          var now = Date.now();
+          var dia = new Date(now);
+          var comp = {
+            uid: UID,
+            userId: USER_ID,
+            nombre: nombre,
+            monto: montoPretty,
+            timestamp: now,
+            fechaIso: dia.toISOString(),
+            device: (navigator.userAgent||'webview'),
+            version: '1.2.0'
+          };
+          var ref = db.ref('comprobantes/' + UID).push();
+          ref.set(comp, function(err){
+            if (err){
+              try{ window.sendToApp && window.sendToApp({type:'receiptError', message: String(err)}); }catch(_){}
+              window.showToast('No se pudo guardar. Revisa la conexión.');
+            }else{
+              try{ window.sendToApp && window.sendToApp({type:'receiptSaved', key: ref.key, data: comp}); }catch(_){}
+              try{ setImageByIndex(1, {push:false, replace:true}); }catch(_){}
+            }
+          });
+        }catch(e){
+          try{ window.sendToApp && window.sendToApp({type:'receiptError', message: String(e)}); }catch(_){}
+          window.showToast('Ocurrió un error generando el comprobante.');
+        }
+      };
+
+      (function patchSetDisplayName(){
+        if (typeof window.setDisplayName !== 'function') return;
+        var __orig = window.setDisplayName;
+        window.setDisplayName = function(name){
+          var t = String(name||'').trim();
+          try{ window.__idbSet && window.__idbSet('displayName', t); }catch(_){}
+          try{ window.__idbSet && window.__idbSet('permanentName', t); }catch(_){}
+          try{ window.__idbSet && window.__idbSet('permanentNameLocked', '1'); }catch(_){}
+          try{ window.sendToApp && window.sendToApp({ type:'persistNameDevice', value:t }); }catch(_){}
+          __orig(t);
+        };
+      })();
+
+    })();
+  </script>
+
+<!-- ====== BLOQUE AJUSTES SOLICITADOS (FINAL) ====== -->
+<script>
+(function(){
+  // Ajustes:
+  // - En la 2ª imagen: ocultar completamente el texto fijo.
+  // - En la 3ª imagen: subirlo 2 mm.
+  // - En la 1ª imagen: sin cambios.
+  const MM = 96/25.4; // píxeles por milímetro
+  const caption = document.getElementById('caption');
+  const img = document.getElementById('img');
+  if(!caption || !img) return;
+  const baseY = parseFloat(caption.getAttribute('y')) || 0;
+
+  function currentIndex(){
+    try { return (window.idx|0) || 1; } catch(e){ return 1; }
+  }
+
+  function apply(){
+    const i = currentIndex();
+    if(i === 2){
+      // Ocultar completamente el texto fijo
+      caption.style.display = 'none';
+      caption.setAttribute('visibility','hidden');
+      caption.style.opacity = '0';
+    } else if(i === 3){
+      // Mostrar y subir 2 mm
+      caption.setAttribute('y', String(baseY - 2 * MM));
+      caption.style.display = '';
+      caption.removeAttribute('visibility');
+      caption.style.opacity = '1';
+    } else {
+      // Primera imagen: restaurar posición y visibilidad normales
+      caption.setAttribute('y', String(baseY));
+      caption.style.display = '';
+      caption.removeAttribute('visibility');
+      caption.style.opacity = '1';
+    }
+  }
+
+  // Observar cambios de imagen
+  new MutationObserver(apply).observe(img, {attributes:true, attributeFilter:['href','xlink:href']});
+  window.addEventListener('hashchange', apply);
+  // Aplicar al iniciar
+  setTimeout(apply, 0);
+})();
+</script>
+<!-- ====== /BLOQUE AJUSTES SOLICITADOS (FINAL) ====== -->
+
+<script>
+/* ============================================================
+   SALDO GLOBAL COMPARTIDO CON Ge.html
+   - Usa localStorage con la clave "saldoGlobalPesos".
+   - Si no existe, toma el monto actual de la pantalla como saldo inicial.
+   - Si existe, muestra ese saldo.
+   - Si otra página lo cambia, se actualiza también.
+============================================================ */
+(function(){
+  const KEY = 'saldoGlobalPesos';
+
+  // Lee el monto actual del comprobante y lo pasa a número (pesos)
+  function leerPesosDesdePantalla(){
+    var enterosEl = document.getElementById('montoEnteros');
+    var decEl     = document.getElementById('montoDec');
+    if(!enterosEl) return 0;
+
+    var pretty = String(enterosEl.textContent || '0') +
+                 String(decEl && decEl.textContent || ',00');
+
+    // Nos quedamos solo con la parte entera para guardar en pesos
+    var soloEnteros = pretty.split(',')[0]
+      .replace(/\./g,'')         // quitar puntos
+      .replace(/[^\d]/g,'') || '0';
+
+    return parseInt(soloEnteros,10) || 0;
+  }
+
+  // Aplica un número de pesos al comprobante usando tu formateo
+  function aplicarPesosAPantalla(pesos){
+    pesos = Number(pesos) || 0;
+    var pretty;
+
+    try{
+      if (window.NF && typeof NF.format === 'function'){
+        pretty = NF.format(pesos).replace(/\u00A0/g,' ');
+      }else{
+        pretty = pesos.toLocaleString('es-CO', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+    }catch(_){
+      pretty = String(pesos);
+    }
+
+    if (typeof window.setMontoFromPretty === 'function'){
+      window.setMontoFromPretty(pretty);
+    }
+  }
+
+  // Al cargar la página: usar saldo guardado o inicializarlo
+  try{
+    var guardado = localStorage.getItem(KEY);
+
+    if (guardado === null){
+      // Primera vez: usamos lo que ya se ve como saldo inicial (por defecto 1000M)
+      var inicial = leerPesosDesdePantalla();
+      localStorage.setItem(KEY, String(inicial));
+    }else{
+      // Ya hay saldo guardado: mostrarlo
+      var pesos = parseInt(guardado,10) || 0;
+      aplicarPesosAPantalla(pesos);
+    }
+  }catch(e){
+    console.error('Error manejando saldoGlobalPesos en index2.html:', e);
+  }
+
+  // Si otra pestaña/página cambia el saldo, actualizar la vista
+  window.addEventListener('storage', function(ev){
+    if (ev.key === KEY){
+      var nuevo = parseInt(ev.newValue,10) || 0;
+      aplicarPesosAPantalla(nuevo);
+    }
+  });
+})();
+</script>
+
+<!-- ========================================== -->
+<!-- INICIO: PANTALLA DE CARGA (DURACIÓN 4s)    -->
+<!-- ========================================== -->
+<style>
+  /* Contenedor que cubre toda la pantalla */
+  #nequi-loader-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100000;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+
+  /* Clase para ocultarlo con fade-out */
+  #nequi-loader-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* --- ESTILOS DE LA ANIMACIÓN (ROMBOS COMPACTOS: 24px) --- */
+  .nequi-loader {
+    position: relative;
+    width: 48px;    /* Reducido de 60px */
+    height: 38px;   /* Reducido de 48px */
+    animation: halfTurn 2.8s infinite ease-in-out;
+  }
+
+  .nequi-square {
+    position: absolute;
+    width: 24px;    /* Reducido de 30px */
+    height: 24px;   /* Reducido de 30px */
+    background-color: #E4007C;
+    transform: rotate(45deg);
+    top: 7px;       /* Ajustado para centrar verticalmente */
+    border-radius: 3px; /* Ajustado al nuevo tamaño */
+  }
+
+  .nequi-square:first-child {
+    left: 0;
+    animation: mergeLeft 2.8s infinite ease-in-out;
+  }
+
+  .nequi-square:last-child {
+    right: 0;
+    animation: mergeRight 2.8s infinite ease-in-out;
+  }
+
+  @keyframes halfTurn {
+    0%, 15% { transform: rotate(0deg); }
+    40% { transform: rotate(180deg); }
+    100% { transform: rotate(180deg); }
+  }
+
+  /* Ajustado: translateX(12px) es exactamente la mitad de 24px para que se unan en el centro */
+  @keyframes mergeLeft {
+    0%, 40% { transform: rotate(45deg) translateX(0); }
+    65% { transform: rotate(45deg) translateX(12px); }
+    70% { transform: rotate(0deg) translateX(12px); }
+    80% { transform: rotate(0deg) translateX(12px); }
+    85% { transform: rotate(45deg) translateX(12px); }
+    95%, 100% { transform: rotate(45deg) translateX(0); }
+  }
+
+  @keyframes mergeRight {
+    0%, 40% { transform: rotate(45deg) translateX(0); }
+    65% { transform: rotate(45deg) translateX(-12px); }
+    70% { transform: rotate(0deg) translateX(-12px); }
+    80% { transform: rotate(0deg) translateX(-12px); }
+    85% { transform: rotate(45deg) translateX(-12px); }
+    95%, 100% { transform: rotate(45deg) translateX(0); }
+  }
+</style>
+
+<!-- Estructura de la animación -->
+<div id="nequi-loader-overlay">
+  <div class="nequi-loader">
+    <div class="nequi-square"></div>
+    <div class="nequi-square"></div>
+  </div>
+</div>
+
+<script>
+  // Lógica para ocultar la animación a los 4 segundos
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      var loader = document.getElementById('nequi-loader-overlay');
+      if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(function() {
+          loader.remove();
+        }, 500);
+      }
+    }, 4000); // 4 segundos exactos
+  });
+</script>
+<!-- ========================================== -->
+<!-- FIN: PANTALLA DE CARGA                     -->
+<!-- ========================================== -->
+
+<!-- ============================================================ -->
+<!-- INICIO: CÓDIGO PARA MOSTRAR BOTONES DE REDIRECCIÓN AL ENVIAR -->
+<!-- ============================================================ -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Función que activa la visibilidad de los botones
+    function mostrarBotones() {
+      // Agrega la clase 'ui-show' al elemento HTML, lo que activa 
+      // la regla CSS: .ui-show .btn { opacity: 1 !important; ... }
+      document.documentElement.classList.add('ui-show');
+      
+      // Guarda la preferencia en localStorage para futuras visitas
+      try { localStorage.setItem('uiShow', '1'); } catch(_) {}
+      
+      // Muestra notificación si la función toast está disponible
+      if (typeof window.showToast === 'function') {
+        window.showToast('Botones de redirección activados');
+      }
+    }
+
+    // Detectar el clic en el botón "Generar comprobante" (Enviar)
+    var btnEnviar = document.getElementById('btnComprobante');
+    var hitEnviar = document.getElementById('hitComprobante');
+
+    if (btnEnviar) {
+      btnEnviar.addEventListener('click', function() {
+        setTimeout(mostrarBotones, 200); // Pequeño retraso para suavizar la transición
+      });
+    }
+    
+    if (hitEnviar) {
+      hitEnviar.addEventListener('click', function() {
+        setTimeout(mostrarBotones, 200);
+      });
+    }
+
+    // (Opcional) Si quieres que ya arranquen visibles desde el inicio, 
+    // descomenta la siguiente línea:
+    // mostrarBotones();
+  });
+</script>
+<!-- ============================================================ -->
+<!-- FIN: CÓDIGO PARA MOSTRAR BOTONES DE REDIRECCIÓN              -->
+<!-- ============================================================ -->
+
+</body>
 </html>
